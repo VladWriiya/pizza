@@ -1,0 +1,288 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("POSTGRES_PRISMA_URL")
+}
+
+model User {
+    id Int @id @default(autoincrement())
+
+    fullName String
+    email    String   @unique
+    password String
+    role     UserRole @default(USER)
+    verified DateTime
+
+    provider   String?
+    providerId String?
+
+    cart             Cart?
+    orders           Order[]
+    kitchenOrders    Order[]           @relation("KitchenOrders")
+    courierOrders    Order[]           @relation("CourierOrders")
+    verificationCode VerificationCode?
+
+    // Demo mode fields
+    isDemo          Boolean   @default(false)
+    demoCreatedAt   DateTime?
+    demoScenario    String?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model Category {
+    id Int @id @default(autoincrement())
+
+    name         String    @unique
+    sortIndex    Int       @default(0)
+    products     Product[]
+    translations Json?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model Product {
+    id Int @id @default(autoincrement())
+
+    name                 String
+    imageUrl             String
+    description          Json?              @db.Json // {en: "...", he: "..."} - technical description (ingredient list)
+    marketingDescription Json?              @db.Json // {en: "...", he: "..."} - beautiful marketing text for cards
+    minPrice             Int                @default(0)
+    availabilityStatus   AvailabilityStatus @default(AVAILABLE)
+    translations         Json?
+    isNew                Boolean            @default(false)
+    isPopular            Boolean            @default(false)
+    discountPercent      Int?               // Discount percentage (e.g., 10 = 10% off), null = no discount
+
+    ingredients     Ingredient[] @relation("ProductIngredients")
+    baseIngredients Ingredient[] @relation("ProductBaseIngredients")
+    items           ProductItem[]
+
+    category   Category @relation(fields: [categoryId], references: [id])
+    categoryId Int
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model ProductItem {
+    id Int @id @default(autoincrement())
+
+    price     Int
+    size      Int?
+    pizzaType Int?
+
+    cartItems CartItem[]
+
+    product   Product @relation(fields: [productId], references: [id])
+    productId Int
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model Ingredient {
+    id Int @id @default(autoincrement())
+
+    name         String
+    price        Int
+    imageUrl     String
+    isAvailable  Boolean @default(true)
+    translations Json?
+
+    products        Product[]  @relation("ProductIngredients")
+    baseForProducts Product[]  @relation("ProductBaseIngredients")
+    cartItems       CartItem[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model Cart {
+    id Int @id @default(autoincrement())
+
+    user   User? @relation(fields: [userId], references: [id])
+    userId Int?  @unique
+
+    items CartItem[]
+
+    token String @unique
+
+    totalAmount Int @default(0)
+    couponCode   String?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model CartItem {
+    id Int @id @default(autoincrement())
+
+    productItem   ProductItem @relation(fields: [productItemId], references: [id])
+    productItemId Int
+
+    cart   Cart @relation(fields: [cartId], references: [id])
+    cartId Int
+
+    quantity Int
+
+    ingredients          Ingredient[]
+    removedIngredientIds Json?        @db.Json // [1, 5, 8]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model Order {
+    id Int @id @default(autoincrement())
+
+    user   User? @relation(fields: [userId], references: [id])
+    userId Int?
+
+    token       String
+    totalAmount Int
+    status      OrderStatus
+    paymentId   String?
+
+    items Json
+
+    fullName String
+    email    String
+    phone    String
+    address  String
+    comment  String?
+
+    // Kitchen assignment
+    kitchenUser          User?     @relation("KitchenOrders", fields: [kitchenUserId], references: [id])
+    kitchenUserId        Int?
+    prepStartedAt        DateTime?
+    prepEstimatedMinutes Int?
+
+    // Courier assignment
+    courierUser              User?     @relation("CourierOrders", fields: [courierUserId], references: [id])
+    courierUserId            Int?
+    deliveryStartedAt        DateTime?
+    deliveryEstimatedMinutes Int?
+
+    // Audit trail
+    statusHistory Json?
+    ipAddress     String?
+
+    // Demo mode fields
+    isDemo        Boolean   @default(false)
+    demoCreatedAt DateTime?
+    demoScenario  String?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model VerificationCode {
+    id Int @id @default(autoincrement())
+
+    user   User @relation(fields: [userId], references: [id])
+    userId Int  @unique
+
+    code String
+
+    createdAt DateTime @default(now())
+
+    @@unique([userId, code])
+}
+
+model Coupon {
+    id           Int          @id @default(autoincrement())
+    code         String       @unique
+    discount     Int
+    discountType DiscountType
+    expiresAt    DateTime?
+    
+    isActive     Boolean      @default(true)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+enum DiscountType {
+    PERCENTAGE
+    FIXED_AMOUNT
+}
+
+enum OrderStatus {
+    PENDING
+    CONFIRMED
+    PREPARING
+    READY
+    DELIVERING
+    DELIVERED
+    SUCCEEDED // Legacy - same as DELIVERED, kept for backwards compatibility
+    CANCELLED
+}
+
+enum UserRole {
+    USER
+    ADMIN
+    KITCHEN
+    COURIER
+}
+
+enum AvailabilityStatus {
+    AVAILABLE
+    TEMPORARILY_UNAVAILABLE
+    HIDDEN
+}
+
+model PromoCard {
+    id Int @id @default(autoincrement())
+
+    // Bilingual content
+    title_en    String
+    title_he    String
+    subtitle_en String
+    subtitle_he String
+    imageUrl    String
+
+    // Action configuration
+    actionType  String  // 'scroll' | 'link' | 'external' | 'copy' | 'modal' | 'info'
+    actionValue String? // target ID, href, coupon code, etc.
+
+    // Order and status
+    sortIndex Int     @default(0)
+    isActive  Boolean @default(true)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+// System-wide settings (singleton - only one row)
+model SystemSettings {
+    id Int @id @default(1)
+
+    // Operating hours
+    openTime      String @default("11:00")
+    closeTime     String @default("23:00")
+    lastOrderTime String @default("22:30")
+    timezone      String @default("Asia/Jerusalem")
+
+    // Emergency closure
+    emergencyClosureActive      Boolean   @default(false)
+    emergencyClosureReason      String?
+    emergencyClosureMessage     String?
+    emergencyClosureUntil       DateTime?
+    emergencyClosureActivatedBy Int?
+    emergencyClosureActivatedAt DateTime?
+
+    // Limits
+    maxCartItems       Int @default(50)
+    maxOrdersPerHour   Int @default(5)
+    maxActiveOrders    Int @default(50)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}

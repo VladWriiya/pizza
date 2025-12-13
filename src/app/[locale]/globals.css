@@ -1,0 +1,192 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media screen and (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+@layer base {
+  :root {
+    --foreground: 20 14.3% 4.1%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 20 14.3% 4.1%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 20 14.3% 4.1%;
+
+    --primary: 22 100% 50%;
+    --primary-foreground: 60 9.1% 97.8%;
+
+    --secondary: 32 100% 98%;
+    --secondary-foreground: 24 9.8% 10%;
+
+    --muted: 60 4.8% 95.9%;
+    --muted-foreground: 25 5.3% 44.7%;
+
+    --accent: 60 4.8% 95.9%;
+    --accent-foreground: 24 9.8% 10%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 60 9.1% 97.8%;
+
+    --border: 20 5.9% 90%;
+    --input: 0 0% 90%;
+    --ring: 24.6 95% 53.1%;
+    --radius: 1rem;
+  }
+}
+
+* {
+  font-family: var(--font-heebo), var(--font-nunito), sans-serif;
+}
+
+.scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.scrollbar::-webkit-scrollbar-track {
+  border-radius: 6px;
+  background: #fff;
+}
+
+.scrollbar::-webkit-scrollbar-thumb {
+  background: #dbdadd;
+  border-radius: 6px;
+}
+
+.scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #dbdadd;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@layer base {
+  * {
+    @apply pz-border-border;
+  }
+  body {
+    @apply pz-bg-background pz-text-foreground;
+  }
+}
+
+
+@layer base {
+  /* Тема "Высокий контраст - Темная" */
+  [data-theme='high-contrast-dark'] {
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+    --card: 0 0% 5%;
+    --card-foreground: 0 0% 95%;
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --primary: 48 95% 53%;
+    --primary-foreground: 0 0% 0%;
+    --secondary: 0 0% 15%;
+    --secondary-foreground: 0 0% 95%;
+  }
+  /* Тема "Высокий контраст - Светлая" */
+  [data-theme='high-contrast-light'] {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 0%;
+    --card: 0 0% 95%;
+    --card-foreground: 0 0% 5%;
+    --border: 0 0% 80%;
+    --input: 0 0% 80%;
+    --primary: 220 95% 45%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 90%;
+    --secondary-foreground: 0 0% 5%;
+  }
+  /* Тема "Монохром" */
+  [data-theme='monochrome'] {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 0%;
+    --card: 0 0% 98%;
+    --card-foreground: 0 0% 5%;
+    --border: 0 0% 85%;
+    --input: 0 0% 85%;
+    --primary: 0 0% 20%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 95%;
+    --secondary-foreground: 0 0% 10%;
+    --muted: 0 0% 90%;
+    --muted-foreground: 0 0% 40%;
+  }
+  /* Тема "Низкая насыщенность" */
+  [data-theme='low-saturation'] {
+    --background: 30 10% 98%;
+    --foreground: 30 5% 15%;
+    --card: 30 10% 96%;
+    --card-foreground: 30 5% 15%;
+    --border: 30 10% 85%;
+    --input: 30 10% 85%;
+    --primary: 22 40% 50%;
+    --primary-foreground: 30 10% 98%;
+    --secondary: 30 15% 92%;
+    --secondary-foreground: 30 5% 20%;
+    --muted: 30 10% 90%;
+    --muted-foreground: 30 5% 45%;
+  }
+}
+
+/* Accessibility Features */
+@layer utilities {
+  /* Highlight Links */
+  .a11y-highlight-links a {
+    @apply pz-underline pz-decoration-2 pz-underline-offset-4 pz-decoration-primary;
+  }
+
+  /* Highlight Focus */
+  .a11y-highlight-focus *:focus {
+    @apply pz-outline-4 pz-outline-offset-2 pz-outline-primary pz-outline;
+  }
+  .a11y-highlight-focus *:focus-visible {
+    @apply pz-outline-4 pz-outline-offset-2 pz-outline-primary pz-outline;
+  }
+
+  /* Pause Animations */
+  .a11y-pause-animations *,
+  .a11y-pause-animations *::before,
+  .a11y-pause-animations *::after {
+    animation-play-state: paused !important;
+    transition: none !important;
+  }
+
+  /* Hide Images */
+  .a11y-hide-images img,
+  .a11y-hide-images svg:not(.a11y-keep),
+  .a11y-hide-images picture,
+  .a11y-hide-images video,
+  .a11y-hide-images [style*="background-image"] {
+    visibility: hidden !important;
+  }
+
+  /* Large White Cursor */
+  .a11y-cursor-large-white,
+  .a11y-cursor-large-white * {
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 24 24' fill='white' stroke='black' stroke-width='1'%3E%3Cpath d='M4 4l16 8-8 2-2 8z'/%3E%3C/svg%3E") 4 4, auto !important;
+  }
+
+  /* Large Black Cursor */
+  .a11y-cursor-large-black,
+  .a11y-cursor-large-black * {
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 24 24' fill='black' stroke='white' stroke-width='1'%3E%3Cpath d='M4 4l16 8-8 2-2 8z'/%3E%3C/svg%3E") 4 4, auto !important;
+  }
+
+  /* Expanded product grid (4 columns when filters are hidden) */
+  .products-expanded .products-grid {
+    @apply md:pz-grid-cols-4;
+  }
+}

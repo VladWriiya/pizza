@@ -1,0 +1,1 @@
+export { HeroPromos } from './HeroPromos';
