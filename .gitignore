@@ -37,9 +37,6 @@ yarn-error.log*
 next-env.d.ts
 .claude/
 CLAUDE.md
-prisma/seed.ts
-prisma/seeds/
-prisma/data/
 test-results/
 playwright-report/
 public.zip
