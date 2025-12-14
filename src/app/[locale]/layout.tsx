@@ -19,6 +19,8 @@ const heebo = Heebo({
   weight: ['400', '500', '600', '700', '800', '900'],
 });
 
+export const dynamicParams = true;
+
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }

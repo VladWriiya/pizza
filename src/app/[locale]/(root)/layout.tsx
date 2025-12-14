@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { AccessibilityToolbar } from '@/widgets/AccessibilityToolbar';
 import { Header } from '@/widgets/header/header';
 import { Footer } from '@/widgets/Footer';
