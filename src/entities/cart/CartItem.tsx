@@ -21,8 +21,8 @@ export const CartItem: React.FC<CartItemProps> = ({
   onClickRemove,
 }) => {
   return (
-    <div className={cn('pz-flex pz-bg-white pz-p-5 pz-gap-6', { 'pz-opacity-50 pz-pointer-events-none': disabled })} data-testid="cart-item">
-      <img src={imageUrl} alt={name} className="pz-w-[60px] pz-h-[60px]" />
+    <div className={cn('pz-flex pz-bg-white pz-p-3 sm:pz-p-5 pz-gap-3 sm:pz-gap-6', { 'pz-opacity-50 pz-pointer-events-none': disabled })} data-testid="cart-item">
+      <img src={imageUrl} alt={name} className="pz-w-[50px] pz-h-[50px] sm:pz-w-[60px] sm:pz-h-[60px]" />
       <div className="pz-flex-1">
         <div>
           <h2 className="pz-text-lg pz-font-bold pz-flex-1 pz-leading-6">{name}</h2>

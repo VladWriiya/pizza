@@ -15,9 +15,9 @@ export const Footer = () => {
 
   return (
     <>
-      <footer id="footer" className="pz-bg-secondary pz-text-secondary-foreground pz-py-10 pz-mt-10">
+      <footer id="footer" className="pz-bg-secondary pz-text-secondary-foreground pz-py-6 sm:pz-py-10 pz-mt-6 sm:pz-mt-10">
         <Container>
-          <div className="pz-grid pz-grid-cols-1 sm:pz-grid-cols-2 lg:pz-grid-cols-4 pz-gap-8">
+          <div className="pz-grid pz-grid-cols-1 sm:pz-grid-cols-2 lg:pz-grid-cols-4 pz-gap-6 sm:pz-gap-8">
             {/* Logo & Description */}
             <div className="pz-col-span-1">
               <Link href="/" className="pz-flex pz-items-center pz-gap-3 pz-mb-4">

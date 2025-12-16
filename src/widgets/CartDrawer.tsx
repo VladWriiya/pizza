@@ -56,7 +56,7 @@ export const CartDrawer: React.FC<React.PropsWithChildren> = ({ children }) => {
           )}
 
           {!loading && totalQuantity === 0 && (
-            <div className="pz-flex pz-flex-col pz-items-center pz-justify-center pz-w-72 pz-mx-auto" data-testid="cart-empty">
+            <div className="pz-flex pz-flex-col pz-items-center pz-justify-center pz-w-full pz-max-w-72 pz-mx-auto pz-px-4" data-testid="cart-empty">
               <div className="pz-w-28 pz-h-28 pz-rounded-full pz-bg-orange-100 pz-flex pz-items-center pz-justify-center pz-mb-5">
                 <PackageOpen className="pz-w-14 pz-h-14 pz-text-orange-400" />
               </div>

@@ -50,7 +50,7 @@ export const ProductCard = async ({ product, className, locale }: ProductCardPro
         href={`/product/${product.id}`}
         scroll={false}
         className={cn(
-          'pz-flex pz-justify-center pz-items-center pz-bg-secondary pz-rounded-lg pz-h-[260px] pz-relative',
+          'pz-flex pz-justify-center pz-items-center pz-bg-secondary pz-rounded-lg pz-h-[200px] sm:pz-h-[230px] md:pz-h-[260px] pz-relative',
           !isAvailable && 'pz-pointer-events-none'
         )}
       >

@@ -7,5 +7,5 @@ interface ContainerProps {
 }
 
 export const Container = ({ className, children }: ContainerProps) => {
-  return <div className={cn('pz-mx-auto pz-max-w-[1400px] pz-px-4', className)}>{children}</div>;
+  return <div className={cn('pz-mx-auto pz-max-w-[1400px] pz-px-3 sm:pz-px-4', className)}>{children}</div>;
 };

@@ -21,7 +21,7 @@ export const ProductGrid = ({ category, className, locale }: ProductGridProps) =
         {title}
       </Heading>
       <div className={cn(
-        'pz-grid pz-grid-cols-1 sm:pz-grid-cols-2 md:pz-grid-cols-3 pz-gap-10 pz-mt-10',
+        'pz-grid pz-grid-cols-1 sm:pz-grid-cols-2 md:pz-grid-cols-3 pz-gap-4 sm:pz-gap-6 md:pz-gap-10 pz-mt-6 md:pz-mt-10',
         'pz-transition-all pz-duration-300',
         // When parent has products-expanded class, show 4 columns
         'products-grid'
