@@ -57,40 +57,40 @@ export function AvailableOrderCard({ order }: AvailableOrderCardProps) {
   };
 
   return (
-    <div className="pz-bg-white pz-rounded-xl pz-shadow-sm pz-p-4 pz-border pz-border-gray-200">
-      <div className="pz-flex pz-justify-between pz-items-start pz-mb-3">
+    <div className="pz-bg-white pz-rounded-xl pz-shadow-sm pz-p-3 sm:pz-p-4 pz-border pz-border-gray-200">
+      <div className="pz-flex pz-justify-between pz-items-start pz-mb-2 sm:pz-mb-3">
         <div>
-          <h3 className="pz-font-bold pz-text-lg">Order #{order.id}</h3>
-          <div className="pz-flex pz-items-center pz-gap-1 pz-text-sm pz-text-gray-500 pz-mt-1">
-            <MapPin size={14} />
-            <span>{shortAddress}</span>
+          <h3 className="pz-font-bold pz-text-base sm:pz-text-lg">#{order.id}</h3>
+          <div className="pz-flex pz-items-center pz-gap-1 pz-text-xs sm:pz-text-sm pz-text-gray-500 pz-mt-0.5 sm:pz-mt-1">
+            <MapPin size={12} className="sm:pz-w-3.5 sm:pz-h-3.5" />
+            <span className="pz-line-clamp-1">{shortAddress}</span>
           </div>
         </div>
-        <span className="pz-bg-green-100 pz-text-green-700 pz-px-2 pz-py-1 pz-rounded pz-text-sm pz-font-semibold">
+        <span className="pz-bg-green-100 pz-text-green-700 pz-px-1.5 sm:pz-px-2 pz-py-0.5 sm:pz-py-1 pz-rounded pz-text-xs sm:pz-text-sm pz-font-semibold">
           Ready
         </span>
       </div>
 
-      <div className="pz-flex pz-items-center pz-justify-between pz-mb-4">
-        <div className="pz-flex pz-items-center pz-gap-4 pz-text-sm pz-text-gray-600">
+      <div className="pz-flex pz-items-center pz-justify-between pz-mb-3 sm:pz-mb-4">
+        <div className="pz-flex pz-items-center pz-gap-3 sm:pz-gap-4 pz-text-xs sm:pz-text-sm pz-text-gray-600">
           <span className="pz-flex pz-items-center pz-gap-1">
-            <Package size={16} />
-            {itemCount} items
+            <Package size={14} />
+            {itemCount}
           </span>
           <span className="pz-flex pz-items-center pz-gap-1">
-            <Clock size={16} />
-            ~30 min delivery
+            <Clock size={14} />
+            ~30m
           </span>
         </div>
-        <span className="pz-font-bold pz-text-lg">{order.totalAmount} ILS</span>
+        <span className="pz-font-bold pz-text-base sm:pz-text-lg">{order.totalAmount} ₪</span>
       </div>
 
       <Button
         onClick={handleAccept}
         disabled={loading}
-        className="pz-w-full pz-h-12 pz-bg-emerald-500 hover:pz-bg-emerald-600"
+        className="pz-w-full pz-h-11 sm:pz-h-12 pz-bg-emerald-500 hover:pz-bg-emerald-600 pz-text-sm sm:pz-text-base"
       >
-        {loading ? 'Accepting...' : 'Accept Delivery'}
+        {loading ? '...' : 'Accept'}
       </Button>
     </div>
   );
