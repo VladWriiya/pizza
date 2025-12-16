@@ -22,12 +22,17 @@ export const ChooseProductModal = ({ product }: ChooseProductModalProps) => {
         <DialogOverlay />
         <DialogPrimitive.Content
           className={cn(
-            'pz-fixed pz-left-[50%] pz-top-[50%] pz-z-50 pz-translate-x-[-50%] pz-translate-y-[-50%]',
-            'pz-w-full pz-max-w-[1100px] pz-h-[750px]',
-            'pz-bg-white pz-rounded-lg pz-shadow-lg pz-overflow-hidden',
+            'pz-fixed pz-z-50',
+            // Mobile: fullscreen
+            'pz-inset-0 md:pz-inset-auto',
+            // Desktop: centered
+            'md:pz-left-[50%] md:pz-top-[50%] md:pz-translate-x-[-50%] md:pz-translate-y-[-50%]',
+            // Size
+            'pz-w-full pz-h-full md:pz-max-w-[1100px] md:pz-h-[750px] md:pz-max-h-[90vh]',
+            'pz-bg-white md:pz-rounded-lg pz-shadow-lg pz-overflow-hidden',
             'data-[state=open]:pz-animate-in data-[state=closed]:pz-animate-out',
             'data-[state=closed]:pz-fade-out-0 data-[state=open]:pz-fade-in-0',
-            'data-[state=closed]:pz-zoom-out-95 data-[state=open]:pz-zoom-in-95'
+            'md:data-[state=closed]:pz-zoom-out-95 md:data-[state=open]:pz-zoom-in-95'
           )}
         >
           <DialogTitle className="pz-sr-only">{product.name}</DialogTitle>

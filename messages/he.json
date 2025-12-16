@@ -204,37 +204,6 @@
     "description": "אין לך הרשאה לגשת לדף זה. אנא התחבר עם חשבון מורשה.",
     "goHome": "חזרה לדף הבית"
   },
-  "HeroCarousel": {
-    "slide1Title": "פיצה טרייה וחמה",
-    "slide1Subtitle": "מוכנה באהבה, מגיעה עד הדלת",
-    "slide1Cta": "הזמן עכשיו",
-    "slide2Title": "20% הנחה על ההזמנה",
-    "slide2Subtitle": "השתמש בקוד SALE20 בקופה",
-    "slide2Cta": "העתק קוד",
-    "slide3Title": "הירשם וחסוך",
-    "slide3Subtitle": "צור חשבון להטבות בלעדיות",
-    "slide3Cta": "הרשמה",
-    "slide4Title": "צור קשר",
-    "slide4Subtitle": "שאלות? אנחנו כאן לעזור!",
-    "slide4Cta": "צור קשר",
-    "slide5Title": "אודות הפרויקט",
-    "slide5Subtitle": "אפליקציית דמו מלאה בNext.js",
-    "slide5Cta": "למד עוד",
-    "slide6Title": "פתוחים 10:00 - 23:00",
-    "slide6Subtitle": "מגישים פיצה טרייה כל יום",
-    "slide7Title": "הזמנה ב-3 קליקים",
-    "slide7Subtitle": "בחר, התאם אישית, שלם - זה פשוט!",
-    "slide7Cta": "התחל להזמין",
-    "slide8Title": "תשלום מאובטח",
-    "slide8Subtitle": "שלם בבטחה עם PayPal",
-    "slide9Title": "צפה בGitHub",
-    "slide9Subtitle": "גלה את קוד המקור של הפרויקט",
-    "slide9Cta": "פתח GitHub",
-    "slide10Title": "נבנה עם Next.js",
-    "slide10Subtitle": "פריימוורק React מודרני לפרודקשן",
-    "slide10Cta": "למד Next.js",
-    "codeCopied": "קוד {code} הועתק ללוח!"
-  },
   "HeroPromos": {
     "promo1Title": "פיצה טרייה",
     "promo1Subtitle": "הזמן עכשיו!",
@@ -257,6 +226,21 @@
     "promo10Title": "Next.js",
     "promo10Subtitle": "בנוי עם טכנולוגיה מודרנית",
     "codeCopied": "קוד {code} הועתק!"
+  },
+  "ProfileMenu": {
+    "signIn": "התחבר",
+    "profile": "פרופיל",
+    "signOut": "התנתק",
+    "adminPanel": "פאנל ניהול",
+    "kitchenDashboard": "מטבח",
+    "courierDashboard": "משלוחים"
+  },
+  "Navigation": {
+    "home": "בית",
+    "pizza": "פיצה",
+    "drinks": "משקאות",
+    "desserts": "קינוחים",
+    "menu": "תפריט"
   },
   "Footer": {
     "description": "פיצה טעימה מרכיבים טריים, מגיעה חמה עד הדלת.",

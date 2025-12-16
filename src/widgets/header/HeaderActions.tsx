@@ -4,7 +4,7 @@ import React from 'react';
 import { CartButton } from '@/features/cart/CartButton';
 import { ProfileButton } from '@/shared/ProfileButton';
 import { AuthModal } from '@/shared/AuthModal';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { LanguageSwitcher } from '@/shared/LanguageSwitcher';
 
@@ -12,7 +12,10 @@ import { LanguageSwitcher } from '@/shared/LanguageSwitcher';
 export const HeaderActions = () => {
   const [openAuthModal, setOpenAuthModal] = React.useState(false);
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
+
+  const isPurchasePage = pathname.includes('/purchase');
 
   React.useEffect(() => {
     let toastMessage = '';
@@ -35,7 +38,7 @@ export const HeaderActions = () => {
       <div className="pz-flex pz-items-center pz-gap-2">
         <LanguageSwitcher />
         <ProfileButton onClickSignIn={() => setOpenAuthModal(true)} />
-        <CartButton />
+        {!isPurchasePage && <CartButton />}
       </div>
     </>
   );

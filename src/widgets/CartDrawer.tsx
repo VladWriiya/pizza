@@ -1,11 +1,10 @@
 'use client';
 
 import React from 'react';
-import Image from 'next/image';
 import { Sheet, SheetClose, SheetContent, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from '@/shared/ui/sheet';
 import { Link } from '@/i18n/navigation';
 import { Button } from '@/shared/ui/button';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { ArrowLeft, ArrowRight, PackageOpen } from 'lucide-react';
 import { CartItem } from '@/entities/cart/CartItem';
 import { useCart } from '@/features/cart/hooks/use-cart';
 import { cn } from '@/lib/utils';
@@ -58,11 +57,13 @@ export const CartDrawer: React.FC<React.PropsWithChildren> = ({ children }) => {
 
           {!loading && totalQuantity === 0 && (
             <div className="pz-flex pz-flex-col pz-items-center pz-justify-center pz-w-72 pz-mx-auto" data-testid="cart-empty">
-              <Image src="/assets/images/empty-box.png" alt="Empty cart" width={120} height={120} />
-              <Heading level="3" className="pz-text-center pz-font-bold pz-my-3">
+              <div className="pz-w-28 pz-h-28 pz-rounded-full pz-bg-orange-100 pz-flex pz-items-center pz-justify-center pz-mb-5">
+                <PackageOpen className="pz-w-14 pz-h-14 pz-text-orange-400" />
+              </div>
+              <Heading level="3" className="pz-text-center pz-font-bold pz-my-3 pz-text-orange-600">
                 {t('emptyTitle')}
               </Heading>
-              <p className="pz-text-center pz-text-neutral-500 pz-mb-5">{t('emptySubtitle')}</p>
+              <p className="pz-text-center pz-text-orange-500/70 pz-mb-5">{t('emptySubtitle')}</p>
               <SheetClose asChild>
                 <Button className="pz-w-56 pz-h-12 pz-text-base" size="lg">
                   <ArrowLeft className="pz-w-5 pz-mr-2" />

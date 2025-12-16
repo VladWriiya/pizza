@@ -58,7 +58,7 @@ export const EditPromoCardDialog: React.FC<Props> = ({ promoCard, onUpdated }) =
           <Pencil size={16} />
         </Button>
       </DialogTrigger>
-      <DialogContent className="pz-max-w-lg">
+      <DialogContent className="pz-max-w-lg pz-bg-white">
         <DialogHeader>
           <DialogTitle>Edit Promo Card</DialogTitle>
         </DialogHeader>

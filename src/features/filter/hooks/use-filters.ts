@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import qs from 'qs';
 
@@ -25,67 +25,117 @@ export interface Filters {
   setSortBy: (value: string) => void;
 }
 
-const getUrlSet = (searchParams: URLSearchParams, key: string): Set<string> => {
+// Parse comma-separated URL param into Set
+const parseUrlSet = (searchParams: URLSearchParams, key: string): Set<string> => {
   const value = searchParams.get(key);
   return new Set(value ? value.split(',') : []);
 };
+
+// Parse initial state from URL (runs once)
+const parseInitialState = (searchParams: URLSearchParams) => ({
+  prices: {
+    priceFrom: searchParams.has('priceFrom') ? Number(searchParams.get('priceFrom')) : undefined,
+    priceTo: searchParams.has('priceTo') ? Number(searchParams.get('priceTo')) : undefined,
+  },
+  pizzaTypes: parseUrlSet(searchParams, 'pizzaTypes'),
+  sizes: parseUrlSet(searchParams, 'sizes'),
+  selectedIngredients: parseUrlSet(searchParams, 'ingredients'),
+  category: searchParams.get('category'),
+  sortBy: searchParams.get('sortBy'),
+});
+
+// Toggle value in Set (immutable)
+const toggleSetValue = (set: Set<string>, value: string): Set<string> => {
+  const newSet = new Set(set);
+  if (newSet.has(value)) {
+    newSet.delete(value);
+  } else {
+    newSet.add(value);
+  }
+  return newSet;
+};
+
+const URL_UPDATE_DELAY = 300; // debounce delay for URL updates
 
 export const useFilters = (): Filters => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const [prices, setPrices] = useState<PriceRange>({});
+  // Track if initial state was loaded from URL
+  const [isReady, setIsReady] = useState(false);
+  const isInitialMount = useRef(true);
+  const urlUpdateTimer = useRef<NodeJS.Timeout | null>(null);
+
+  // Filter state
+  const [prices, setPricesState] = useState<PriceRange>({});
   const [pizzaTypes, setPizzaTypes] = useState<Set<string>>(new Set());
   const [sizes, setSizes] = useState<Set<string>>(new Set());
   const [selectedIngredients, setSelectedIngredients] = useState<Set<string>>(new Set());
   const [category, setCategory] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<string | null>(null);
-  const [isReady, setIsReady] = useState(false);
 
+  // Initialize state from URL on mount
   useEffect(() => {
-    setPrices({
-      priceFrom: searchParams.has('priceFrom') ? Number(searchParams.get('priceFrom')) : undefined,
-      priceTo: searchParams.has('priceTo') ? Number(searchParams.get('priceTo')) : undefined,
-    });
-    setPizzaTypes(getUrlSet(searchParams, 'pizzaTypes'));
-    setSizes(getUrlSet(searchParams, 'sizes'));
-    setSelectedIngredients(getUrlSet(searchParams, 'ingredients'));
-    setCategory(searchParams.get('category'));
-    setSortBy(searchParams.get('sortBy'));
-    setIsReady(true);
+    if (isInitialMount.current) {
+      const initial = parseInitialState(searchParams);
+      setPricesState(initial.prices);
+      setPizzaTypes(initial.pizzaTypes);
+      setSizes(initial.sizes);
+      setSelectedIngredients(initial.selectedIngredients);
+      setCategory(initial.category);
+      setSortBy(initial.sortBy);
+      setIsReady(true);
+      isInitialMount.current = false;
+    }
   }, [searchParams]);
 
+  // Sync state to URL with debounce
   useEffect(() => {
     if (!isReady) return;
 
-    const params = {
-      ...prices,
-      pizzaTypes: Array.from(pizzaTypes),
-      sizes: Array.from(sizes),
-      ingredients: Array.from(selectedIngredients),
-      category: category,
-      sortBy: sortBy,
+    // Clear pending update
+    if (urlUpdateTimer.current) {
+      clearTimeout(urlUpdateTimer.current);
+    }
+
+    urlUpdateTimer.current = setTimeout(() => {
+      const params = {
+        ...prices,
+        pizzaTypes: Array.from(pizzaTypes),
+        sizes: Array.from(sizes),
+        ingredients: Array.from(selectedIngredients),
+        category,
+        sortBy,
+      };
+
+      const queryString = qs.stringify(params, { arrayFormat: 'comma', skipNulls: true });
+      const newUrl = queryString ? `${pathname}?${queryString}` : pathname;
+      router.replace(newUrl, { scroll: false });
+    }, URL_UPDATE_DELAY);
+
+    return () => {
+      if (urlUpdateTimer.current) {
+        clearTimeout(urlUpdateTimer.current);
+      }
     };
-    const queryString = qs.stringify(params, { arrayFormat: 'comma', skipNulls: true });
-    const newUrl = queryString ? `${pathname}?${queryString}` : pathname;
-    router.replace(newUrl, { scroll: false });
   }, [prices, pizzaTypes, sizes, selectedIngredients, category, sortBy, pathname, router, isReady]);
 
-  const updateSet = (updater: React.Dispatch<React.SetStateAction<Set<string>>>, value: string) => {
-    updater((prevSet) => {
-      const newSet = new Set(prevSet);
-      if (newSet.has(value)) {
-        newSet.delete(value);
-      } else {
-        newSet.add(value);
-      }
-      return newSet;
-    });
-  };
+  // Memoized update functions
+  const setPrices = useCallback((name: keyof PriceRange, value: number) => {
+    setPricesState((prev) => ({ ...prev, [name]: value }));
+  }, []);
 
-  const updatePrice = useCallback((name: keyof PriceRange, value: number) => {
-    setPrices((prev) => ({ ...prev, [name]: value }));
+  const togglePizzaType = useCallback((value: string) => {
+    setPizzaTypes((prev) => toggleSetValue(prev, value));
+  }, []);
+
+  const toggleSize = useCallback((value: string) => {
+    setSizes((prev) => toggleSetValue(prev, value));
+  }, []);
+
+  const toggleIngredient = useCallback((value: string) => {
+    setSelectedIngredients((prev) => toggleSetValue(prev, value));
   }, []);
 
   return {
@@ -96,10 +146,10 @@ export const useFilters = (): Filters => {
     category,
     sortBy,
     isReady,
-    setPrices: updatePrice,
-    togglePizzaType: (value) => updateSet(setPizzaTypes, value),
-    toggleSize: (value) => updateSet(setSizes, value),
-    toggleIngredient: (value) => updateSet(setSelectedIngredients, value),
+    setPrices,
+    togglePizzaType,
+    toggleSize,
+    toggleIngredient,
     setCategory,
     setSortBy,
   };

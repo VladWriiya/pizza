@@ -6,7 +6,7 @@ export interface SearchParams {
 
 export function withPrice(params: SearchParams): Prisma.ProductWhereInput {
   const minPrice = Number(params.priceFrom) || 0;
-  const maxPrice = Number(params.priceTo) || 1000;
+  const maxPrice = Number(params.priceTo) || 100;
 
   return {
     items: {
@@ -78,14 +78,12 @@ export function withSort(params: SearchParams): Prisma.ProductOrderByWithRelatio
   const sortBy = params.sortBy as string;
 
   switch (sortBy) {
-    case 'newest':
-      return { createdAt: 'desc' };
     case 'price_asc':
       return { minPrice: 'asc' };
     case 'price_desc':
       return { minPrice: 'desc' };
-    case 'popular':
+    case 'newest':
     default:
-      return { id: 'asc' };
+      return { createdAt: 'desc' };
   }
 }

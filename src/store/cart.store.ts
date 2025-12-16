@@ -74,13 +74,52 @@ export const useCartStore = create<CartState>((set) => ({
   },
 
   updateItemQuantity: async (id, quantity, locale, tDoughs) => {
+    // Get current item - price is per unit (not multiplied by quantity)
+    const currentItems = useCartStore.getState().items;
+    const targetItem = currentItems.find((item) => item.id === id);
+
+    if (!targetItem) return;
+
+    // price in TransformedCartItem is unit price (per 1 item)
+    const unitPrice = targetItem.price;
+    const quantityDiff = quantity - targetItem.quantity;
+
+    // Optimistic update: immediately update UI
+    // Note: price stays the same (it's unit price), only quantity changes
+    set((state) => ({
+      items: state.items.map((item) =>
+        item.id === id
+          ? { ...item, quantity, disabled: true }
+          : item
+      ),
+      totalAmount: state.totalAmount + unitPrice * quantityDiff,
+    }));
+
     try {
-      set((state) => ({
-        items: state.items.map((item) => (item.id === id ? { ...item, disabled: true } : item)),
-      }));
       const data = await updateCartItemQuantityAction(id, quantity);
-      set(transformCartData(data, locale, tDoughs));
+      // Only update this specific item from server response, preserve other items' current state
+      const serverCart = transformCartData(data, locale, tDoughs);
+      set((state) => ({
+        items: state.items.map((item) => {
+          if (item.id === id) {
+            const serverItem = serverCart.items.find((si) => si.id === id);
+            return serverItem ? { ...serverItem, disabled: false } : { ...item, disabled: false };
+          }
+          return item;
+        }),
+        totalAmount: serverCart.totalAmount,
+      }));
     } catch (e) {
+      // Rollback only this item on error
+      set((state) => ({
+        items: state.items.map((item) =>
+          item.id === id
+            ? { ...item, quantity: targetItem.quantity, disabled: false }
+            : item
+        ),
+        totalAmount: state.totalAmount - unitPrice * quantityDiff,
+      }));
+
       const errorMessage = e instanceof Error ? e.message : '';
       if (errorMessage.startsWith('CART_LIMIT_EXCEEDED:')) {
         const limit = errorMessage.split(':')[1];
@@ -89,8 +128,6 @@ export const useCartStore = create<CartState>((set) => ({
         console.error(e);
         set({ error: true });
       }
-    } finally {
-      set((state) => ({ items: state.items.map((item) => ({ ...item, disabled: false })) }));
     }
   },
 

@@ -30,7 +30,7 @@ export function PromoModal({ open, onOpenChange }: PromoModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="pz-max-w-lg">
+      <DialogContent className="pz-max-w-lg pz-bg-white">
         <DialogHeader>
           <DialogTitle>{t('aboutUs')}</DialogTitle>
         </DialogHeader>

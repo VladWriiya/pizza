@@ -4,7 +4,6 @@ import { OrderStatus } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 import { prisma } from '../../../../prisma/prisma-client';
 
-const VAT_PERCENT = 18; 
 const DELIVERY_PRICE = 10;
 
 export async function calculateFinalOrderAmountAction(token: string) {
@@ -14,17 +13,15 @@ export async function calculateFinalOrderAmountAction(token: string) {
     return {
       finalAmount: 0,
       subtotal: 0,
-      vat: 0,
       delivery: 0,
     };
   }
 
   const subtotal = cart.totalAmount;
-  const vat = (subtotal * VAT_PERCENT) / 100;
   const delivery = DELIVERY_PRICE;
-  const finalAmount = subtotal + delivery + vat;
+  const finalAmount = subtotal + delivery;
 
-  return { finalAmount, subtotal, vat, delivery };
+  return { finalAmount, subtotal, delivery };
 }
 
 export async function getOrdersAction(query?: string, status?: OrderStatus | 'ALL') {

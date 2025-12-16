@@ -12,8 +12,8 @@ export const PriceRangeFilter = ({ className }: { className?: string }) => {
   const t = useTranslations('HomePage');
   const filters = useFilters();
   const minPrice = 0;
-  const maxPrice = 200;
-  const priceStep = 10;
+  const maxPrice = 100;
+  const priceStep = 5;
 
   const handlePriceChange = (newValues: number[]) => {
     filters.setPrices('priceFrom', newValues[0]);

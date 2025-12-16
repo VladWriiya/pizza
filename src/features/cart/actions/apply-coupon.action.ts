@@ -1,10 +1,10 @@
 'use server';
 
-
 import { cookies } from 'next/headers';
 import { revalidatePath } from 'next/cache';
 import { CartWithRelations } from '@/lib/prisma-types';
 import { prisma } from '../../../../prisma/prisma-client';
+import { cartItemsInclude } from '@/lib/cart-utils';
 
 export async function applyCouponAction(code: string) {
   const cookieStore = await cookies();
@@ -53,20 +53,13 @@ export async function applyCouponAction(code: string) {
 
   const updatedCart = await prisma.cart.update({
     where: { id: cart.id },
-    data: { 
+    data: {
         totalAmount: finalAmount,
-        couponCode: coupon.code, 
+        couponCode: coupon.code,
     },
-    include: {
-      items: {
-        include: {
-          productItem: { include: { product: true } },
-          ingredients: true,
-        },
-      },
-    },
+    include: cartItemsInclude,
   });
 
-  revalidatePath('/purchase'); 
+  revalidatePath('/purchase');
   return { success: true, cart: updatedCart as CartWithRelations, discount: discountAmount };
 }

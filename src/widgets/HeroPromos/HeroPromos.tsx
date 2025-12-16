@@ -1,16 +1,21 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { useLocale } from 'next-intl';
-import { Link } from '@/i18n/navigation';
+import { Link, useRouter } from '@/i18n/navigation';
 import { cn } from '@/lib/utils';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useSession } from 'next-auth/react';
 import { PromoModal } from './PromoModal';
+import { AuthModal } from '@/shared/AuthModal';
 import { PromoCard } from '@prisma/client';
 
+const AUTO_SCROLL_INTERVAL = 4000; // 4 seconds
+const CARD_WIDTH = 170; // approximate card width + gap
+
 interface PromoCardAction {
-  type: 'scroll' | 'link' | 'external' | 'copy' | 'modal' | 'info';
+  type: 'scroll' | 'link' | 'external' | 'copy' | 'modal' | 'info' | 'auth';
   value?: string;
 }
 
@@ -20,18 +25,47 @@ interface HeroPromosProps {
 
 export function HeroPromos({ promoCards }: HeroPromosProps) {
   const locale = useLocale();
+  const router = useRouter();
+  const { data: session } = useSession();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [aboutOpen, setAboutOpen] = useState(false);
+  const [authOpen, setAuthOpen] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
 
-  const scroll = (direction: 'left' | 'right') => {
+  const scroll = useCallback((direction: 'left' | 'right') => {
     if (!scrollRef.current) return;
-    const scrollAmount = 160;
-    const newScrollLeft =
-      direction === 'left'
-        ? scrollRef.current.scrollLeft - scrollAmount
-        : scrollRef.current.scrollLeft + scrollAmount;
-    scrollRef.current.scrollTo({ left: newScrollLeft, behavior: 'smooth' });
-  };
+    const container = scrollRef.current;
+    const maxScroll = container.scrollWidth - container.clientWidth;
+
+    let newScrollLeft: number;
+    if (direction === 'right') {
+      // If at end, loop back to start
+      if (container.scrollLeft >= maxScroll - 10) {
+        newScrollLeft = 0;
+      } else {
+        newScrollLeft = container.scrollLeft + CARD_WIDTH;
+      }
+    } else {
+      // If at start, loop to end
+      if (container.scrollLeft <= 10) {
+        newScrollLeft = maxScroll;
+      } else {
+        newScrollLeft = container.scrollLeft - CARD_WIDTH;
+      }
+    }
+    container.scrollTo({ left: newScrollLeft, behavior: 'smooth' });
+  }, []);
+
+  // Auto-scroll effect
+  useEffect(() => {
+    if (isPaused || promoCards.length <= 1) return;
+
+    const interval = setInterval(() => {
+      scroll('right');
+    }, AUTO_SCROLL_INTERVAL);
+
+    return () => clearInterval(interval);
+  }, [isPaused, promoCards.length, scroll]);
 
   const getAction = (card: PromoCard): PromoCardAction => ({
     type: card.actionType as PromoCardAction['type'],
@@ -56,6 +90,14 @@ export function HeroPromos({ promoCards }: HeroPromosProps) {
       case 'modal':
         if (action.value === 'about') {
           setAboutOpen(true);
+        }
+        break;
+      case 'auth':
+        if (session) {
+          router.push('/profile');
+          toast.success(locale === 'he' ? 'אתה כבר מחובר!' : 'You\'re already signed in!');
+        } else {
+          setAuthOpen(true);
         }
         break;
       case 'info':
@@ -115,8 +157,15 @@ export function HeroPromos({ promoCards }: HeroPromosProps) {
       );
     }
 
-    // Internal links
+    // Internal links - treat /register as auth action
     if (action.type === 'link' && action.value) {
+      if (action.value === '/register') {
+        return (
+          <div key={card.id} onClick={() => handleCardClick({ ...card, actionType: 'auth' })}>
+            {cardContent}
+          </div>
+        );
+      }
       return (
         <Link key={card.id} href={action.value}>
           {cardContent}
@@ -138,7 +187,11 @@ export function HeroPromos({ promoCards }: HeroPromosProps) {
 
   return (
     <>
-      <div className="pz-relative pz-flex pz-items-center pz-justify-center pz-px-4">
+      <div
+        className="pz-relative pz-flex pz-items-center pz-justify-center pz-px-4"
+        onMouseEnter={() => setIsPaused(true)}
+        onMouseLeave={() => setIsPaused(false)}
+      >
         {/* Left Arrow */}
         <button
           onClick={() => scroll('left')}
@@ -183,6 +236,7 @@ export function HeroPromos({ promoCards }: HeroPromosProps) {
       </div>
 
       <PromoModal open={aboutOpen} onOpenChange={setAboutOpen} />
+      <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} initialType="register" />
     </>
   );
 }

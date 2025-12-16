@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { WhiteBlock } from '@/shared/WhiteBlock';
-import { LucideIcon, Package, Percent, Truck, Ticket } from 'lucide-react';
+import { LucideIcon, Package, Truck, Ticket } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
 import { ApplyCouponForm } from '@/features/cart/ApplyCouponForm';
@@ -29,7 +29,6 @@ const CheckoutDetailRow: React.FC<CheckoutDetailRowProps> = ({ title, value, ico
 export interface PriceDetails {
   finalAmount: number;
   subtotal: number;
-  vat: number;
   delivery: number;
   discount?: number;
   couponCode?: string;
@@ -55,15 +54,14 @@ export const CheckoutSidebar: React.FC<Props> = ({ priceDetails, className, chil
         <CheckoutDetailRow title={t('cartValue')} value={`${priceDetails.subtotal.toFixed(2)} ILS`} icon={Package} />
         
         {priceDetails.couponCode && priceDetails.discount && (
-            <CheckoutDetailRow 
+            <CheckoutDetailRow
                 title={`${t('coupon')}: ${priceDetails.couponCode}`}
                 value={`- ${priceDetails.discount.toFixed(2)} ILS`}
                 icon={Ticket}
                 className="pz-text-green-600"
             />
         )}
-        
-        <CheckoutDetailRow title={t('vat')} value={`${priceDetails.vat.toFixed(2)} ILS`} icon={Percent} />
+
         <CheckoutDetailRow title={t('delivery')} value={`${priceDetails.delivery.toFixed(2)} ILS`} icon={Truck} />
 
         <div className="pz-mt-6 pz-border-t pz-pt-6">

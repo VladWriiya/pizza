@@ -13,7 +13,6 @@ import toast from 'react-hot-toast';
 import { useTranslations } from 'next-intl';
 import { useCart } from '@/features/cart/hooks/use-cart';
 
-const VAT_PERCENT = 18;
 const DELIVERY_PRICE = 10;
 
 export const OrderForm: React.FC = () => {
@@ -30,17 +29,15 @@ export const OrderForm: React.FC = () => {
     // Если есть купон, разница между itemsSubtotal и totalAmount = discount
     const discount = couponCode ? Math.max(0, itemsSubtotal - totalAmount) : 0;
 
-    // Используем totalAmount (уже со скидкой) как базу для VAT и финальной суммы
+    // Используем totalAmount (уже со скидкой) как базу для финальной суммы
     const subtotalAfterDiscount = totalAmount;
-    const vat = (subtotalAfterDiscount * VAT_PERCENT) / 100;
     const delivery = DELIVERY_PRICE;
-    const finalAmount = subtotalAfterDiscount + delivery + vat;
+    const finalAmount = subtotalAfterDiscount + delivery;
 
     return {
       subtotal: itemsSubtotal,
       discount: discount > 0 ? discount : undefined,
       couponCode: couponCode || undefined,
-      vat,
       delivery,
       finalAmount,
     };

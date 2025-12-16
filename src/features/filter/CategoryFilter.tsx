@@ -40,7 +40,7 @@ export const CategoryFilter = ({ items, className }: Props) => {
             key={item.id}
             onClick={() => handleClick(item.internalName)}
             className={cn(
-              'pz-flex pz-items-center pz-font-bold pz-h-12 pz-rounded-2xl pz-px-6 pz-text-base pz-transition',
+              'pz-flex pz-items-center pz-font-bold pz-h-9 md:pz-h-12 pz-rounded-2xl pz-px-3 md:pz-px-6 pz-text-sm md:pz-text-base pz-transition pz-whitespace-nowrap',
               isActive
                 ? 'pz-bg-card pz-shadow-md pz-shadow-black/10 pz-text-primary'
                 : 'pz-text-secondary-foreground hover:pz-text-primary'

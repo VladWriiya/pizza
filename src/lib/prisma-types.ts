@@ -17,36 +17,38 @@ export type ProductWithDetails = Prisma.ProductGetPayload<{
   };
 }>;
 
-export type CartItemWithRelations = Prisma.CartItemGetPayload<{
-  include: {
-    productItem: {
-      include: {
-        product: {
-          include: {
-            baseIngredients: true;
-          };
-        };
-      };
+// Optimized cart types - only fields needed for display
+export type CartItemWithRelations = {
+  id: number;
+  quantity: number;
+  removedIngredientIds: Prisma.JsonValue;
+  productItem: {
+    price: number;
+    size: number | null;
+    pizzaType: number | null;
+    product: {
+      name: string;
+      imageUrl: string;
+      translations: Prisma.JsonValue;
+      baseIngredients: {
+        id: number;
+        name: string;
+        translations: Prisma.JsonValue;
+      }[];
     };
-    ingredients: true;
   };
-}>;
+  ingredients: {
+    id: number;
+    name: string;
+    price: number;
+    translations: Prisma.JsonValue;
+  }[];
+};
 
-export type CartWithRelations = Prisma.CartGetPayload<{
-  include: {
-    items: {
-      include: {
-        productItem: {
-          include: {
-            product: {
-              include: {
-                baseIngredients: true;
-              };
-            };
-          };
-        };
-        ingredients: true;
-      };
-    };
-  };
-}>;
+export type CartWithRelations = {
+  id: number;
+  token: string;
+  totalAmount: number;
+  couponCode: string | null;
+  items: CartItemWithRelations[];
+};

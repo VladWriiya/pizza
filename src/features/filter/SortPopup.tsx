@@ -18,7 +18,6 @@ export const SortPopup = () => {
   const { sortBy, setSortBy, isReady } = useFilters();
 
   const sortOptions = [
-    { value: 'popular', label: tOptions('popular') },
     { value: 'newest', label: tOptions('newest') },
     { value: 'price_asc', label: tOptions('price_asc') },
     { value: 'price_desc', label: tOptions('price_desc') },
@@ -30,10 +29,10 @@ export const SortPopup = () => {
     );
   }
 
-  const activeLabel = sortOptions.find((opt) => opt.value === (sortBy || 'popular'))?.label;
+  const activeLabel = sortOptions.find((opt) => opt.value === (sortBy || 'newest'))?.label;
 
   return (
-    <Select value={sortBy || 'popular'} onValueChange={setSortBy}>
+    <Select value={sortBy || 'newest'} onValueChange={setSortBy}>
       <SelectTrigger className="pz-w-[180px] pz-h-11 pz-px-3 pz-bg-card pz-rounded-lg pz-border pz-border-border focus:pz-ring-2 focus:pz-ring-primary">
         <div className="pz-flex pz-items-center pz-gap-2">
           <ArrowUpDown size={16} className="pz-text-muted-foreground pz-shrink-0" />

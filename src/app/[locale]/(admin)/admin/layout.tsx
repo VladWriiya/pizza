@@ -32,6 +32,11 @@ const AdminSidebar: React.FC = () => {
             </Link>
           </li>
           <li>
+            <Link href="/admin/staff" className="pz-font-bold hover:pz-text-primary pz-transition">
+              Staff
+            </Link>
+          </li>
+          <li>
             <Link href="/admin/categories" className="pz-font-bold hover:pz-text-primary pz-transition">
               Categories
             </Link>

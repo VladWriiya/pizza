@@ -203,37 +203,6 @@
     "description": "You don't have permission to access this page. Please log in with an authorized account.",
     "goHome": "Go to Homepage"
   },
-  "HeroCarousel": {
-    "slide1Title": "Fresh & Hot Pizza",
-    "slide1Subtitle": "Made with love, delivered to your door",
-    "slide1Cta": "Order Now",
-    "slide2Title": "20% Off Your Order",
-    "slide2Subtitle": "Use code SALE20 at checkout",
-    "slide2Cta": "Copy Code",
-    "slide3Title": "Sign Up & Save",
-    "slide3Subtitle": "Create an account for exclusive deals",
-    "slide3Cta": "Sign Up",
-    "slide4Title": "Contact Us",
-    "slide4Subtitle": "Questions? We're here to help!",
-    "slide4Cta": "Get in Touch",
-    "slide5Title": "About This Project",
-    "slide5Subtitle": "A full-stack Next.js demo application",
-    "slide5Cta": "Learn More",
-    "slide6Title": "Open 10:00 - 23:00",
-    "slide6Subtitle": "Serving fresh pizza every day",
-    "slide7Title": "Order in 3 Clicks",
-    "slide7Subtitle": "Choose, customize, checkout - it's that easy!",
-    "slide7Cta": "Start Ordering",
-    "slide8Title": "Secure Payment",
-    "slide8Subtitle": "Pay safely with PayPal",
-    "slide9Title": "View on GitHub",
-    "slide9Subtitle": "Explore the source code of this project",
-    "slide9Cta": "Open GitHub",
-    "slide10Title": "Built with Next.js",
-    "slide10Subtitle": "Modern React framework for production",
-    "slide10Cta": "Learn Next.js",
-    "codeCopied": "Code {code} copied to clipboard!"
-  },
   "HeroPromos": {
     "promo1Title": "Fresh Pizza",
     "promo1Subtitle": "Order now!",
@@ -256,6 +225,21 @@
     "promo10Title": "Next.js",
     "promo10Subtitle": "Built with modern tech",
     "codeCopied": "Code {code} copied!"
+  },
+  "ProfileMenu": {
+    "signIn": "Sign In",
+    "profile": "Profile",
+    "signOut": "Sign Out",
+    "adminPanel": "Admin Panel",
+    "kitchenDashboard": "Kitchen",
+    "courierDashboard": "Deliveries"
+  },
+  "Navigation": {
+    "home": "Home",
+    "pizza": "Pizza",
+    "drinks": "Drinks",
+    "desserts": "Desserts",
+    "menu": "Menu"
   },
   "Footer": {
     "description": "Delicious pizza made with fresh ingredients, delivered hot to your door.",

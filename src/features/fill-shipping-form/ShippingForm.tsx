@@ -14,7 +14,7 @@ export const ShippingForm = () => {
   return (
     <>
       <WhiteBlock title={t('personalInfo')}>
-        <div className="pz-grid pz-grid-cols-2 pz-gap-5">
+        <div className="pz-grid pz-grid-cols-1 sm:pz-grid-cols-2 pz-gap-4 sm:pz-gap-5">
           <FormInput name="firstName" placeholder={t('firstName')} />
           <FormInput name="lastName" placeholder={t('lastName')} />
           <FormInput name="email" type="email" placeholder={t('email')} />
@@ -23,7 +23,7 @@ export const ShippingForm = () => {
       </WhiteBlock>
 
       <WhiteBlock title={t('shippingAddress')}>
-        <div className="pz-flex pz-flex-col pz-gap-5">
+        <div className="pz-flex pz-flex-col pz-gap-4 sm:pz-gap-5">
           <FormField name="address">
             {(_, error) => (
               <Controller

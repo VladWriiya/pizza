@@ -2,7 +2,7 @@
 
 import { cookies } from 'next/headers';
 import crypto from 'crypto';
-import { getOrCreateCart, updateCartTotals } from '@/lib/cart-utils';
+import { getOrCreateCart, updateCartTotals, cartItemsInclude } from '@/lib/cart-utils';
 import { CartWithRelations } from '@/lib/prisma-types';
 import { prisma } from '../../../../prisma/prisma-client';
 
@@ -14,11 +14,23 @@ interface AddToCartPayload {
 
 const DEFAULT_MAX_CART_ITEMS = 50;
 
-// Get max cart items from settings or use default
+// Cache for maxCartItems (refreshes every 60 seconds)
+let cachedMaxCartItems: number | null = null;
+let cacheTimestamp = 0;
+const CACHE_TTL = 60_000; // 60 seconds
+
+// Get max cart items from settings with caching
 async function getMaxCartItems(): Promise<number> {
+  const now = Date.now();
+  if (cachedMaxCartItems !== null && now - cacheTimestamp < CACHE_TTL) {
+    return cachedMaxCartItems;
+  }
+
   try {
     const settings = await prisma.systemSettings.findFirst();
-    return settings?.maxCartItems ?? DEFAULT_MAX_CART_ITEMS;
+    cachedMaxCartItems = settings?.maxCartItems ?? DEFAULT_MAX_CART_ITEMS;
+    cacheTimestamp = now;
+    return cachedMaxCartItems;
   } catch {
     return DEFAULT_MAX_CART_ITEMS;
   }
@@ -41,24 +53,8 @@ export async function getCartAction(): Promise<CartWithRelations | null> {
 
   return prisma.cart.findFirst({
     where: { token },
-    include: {
-      items: {
-        orderBy: { createdAt: 'desc' },
-        include: {
-          productItem: {
-            include: {
-              product: {
-                include: {
-                  baseIngredients: true,
-                },
-              },
-            },
-          },
-          ingredients: true,
-        },
-      },
-    },
-  });
+    include: cartItemsInclude,
+  }) as Promise<CartWithRelations | null>;
 }
 
 export async function addCartItemAction(payload: AddToCartPayload): Promise<CartWithRelations> {
@@ -69,32 +65,35 @@ export async function addCartItemAction(payload: AddToCartPayload): Promise<Cart
     cookies().set('cartToken', token);
   }
 
-  const cart = await getOrCreateCart(token);
-
-  // Check cart limit before adding
-  const [currentTotal, maxItems] = await Promise.all([
-    getCartTotalItems(cart.id),
+  // Step 1: Get or create cart + get maxItems in parallel
+  const [cart, maxItems] = await Promise.all([
+    getOrCreateCart(token),
     getMaxCartItems(),
   ]);
-
-  if (currentTotal >= maxItems) {
-    throw new Error(`CART_LIMIT_EXCEEDED:${maxItems}`);
-  }
 
   const sortedIngredientIds = payload.ingredients?.sort((a: number, b: number) => a - b) || [];
   const sortedRemovedIds = payload.removedIngredients?.sort((a: number, b: number) => a - b) || [];
 
-  const candidates = await prisma.cartItem.findMany({
-    where: {
-      cartId: cart.id,
-      productItemId: payload.productItemId,
-    },
-    include: {
-      ingredients: {
-        select: { id: true },
+  // Step 2: Get candidates + count in parallel
+  const [candidates, currentTotal] = await Promise.all([
+    prisma.cartItem.findMany({
+      where: {
+        cartId: cart.id,
+        productItemId: payload.productItemId,
       },
-    },
-  });
+      include: {
+        ingredients: {
+          select: { id: true },
+        },
+      },
+    }),
+    getCartTotalItems(cart.id),
+  ]);
+
+  // Check cart limit
+  if (currentTotal >= maxItems) {
+    throw new Error(`CART_LIMIT_EXCEEDED:${maxItems}`);
+  }
 
   const existingItem = candidates.find((item) => {
     // Compare added ingredients
@@ -113,6 +112,7 @@ export async function addCartItemAction(payload: AddToCartPayload): Promise<Cart
     return itemRemovedIds.every((id, index) => id === sortedRemovedIds[index]);
   });
 
+  // Step 3: Update or create item
   if (existingItem) {
     await prisma.cartItem.update({
       where: { id: existingItem.id },
@@ -130,6 +130,7 @@ export async function addCartItemAction(payload: AddToCartPayload): Promise<Cart
     });
   }
 
+  // Step 4: Update totals and return
   return updateCartTotals(token);
 }
 
@@ -142,18 +143,17 @@ export async function updateCartItemQuantityAction(itemId: number, quantity: num
   if (quantity === 0) {
     await prisma.cartItem.delete({ where: { id: itemId } });
   } else {
-    // Check cart limit when increasing quantity
-    const cartItem = await prisma.cartItem.findUnique({
-      where: { id: itemId },
-      include: { cart: true },
-    });
+    // Get cart item and max items in parallel
+    const [cartItem, maxItems] = await Promise.all([
+      prisma.cartItem.findUnique({
+        where: { id: itemId },
+        select: { cartId: true, quantity: true },
+      }),
+      getMaxCartItems(),
+    ]);
 
     if (cartItem && quantity > cartItem.quantity) {
-      const [currentTotal, maxItems] = await Promise.all([
-        getCartTotalItems(cartItem.cartId),
-        getMaxCartItems(),
-      ]);
-
+      const currentTotal = await getCartTotalItems(cartItem.cartId);
       const increase = quantity - cartItem.quantity;
       if (currentTotal + increase > maxItems) {
         throw new Error(`CART_LIMIT_EXCEEDED:${maxItems}`);

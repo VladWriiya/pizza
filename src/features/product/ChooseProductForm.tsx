@@ -27,6 +27,7 @@ export const ChooseProductForm = ({ product, className, onClose }: ChooseProduct
     const locale = useLocale();
     const { addCartItem, loading } = useCart();
     const router = useRouter();
+    const [isSubmitting, setIsSubmitting] = React.useState(false);
 
     const isPizza = product.items.some(item => !!item.pizzaType);
 
@@ -43,6 +44,9 @@ export const ChooseProductForm = ({ product, className, onClose }: ChooseProduct
     } = useProductForm(product.items, product.ingredients, product.baseIngredients);
 
     const handleAddToCart = async () => {
+        // Prevent double-click
+        if (isSubmitting) return;
+
         const selectedVariant = isPizza
             ? product.items.find(item => item.size === size && item.pizzaType === doughType)
             : product.items[0];
@@ -59,12 +63,14 @@ export const ChooseProductForm = ({ product, className, onClose }: ChooseProduct
                 : undefined,
         };
 
+        setIsSubmitting(true);
         try {
             await addCartItem(payload);
             toast.success(`${translatedName} added to the cart!`);
             router.back();
         } catch {
             toast.error('Could not add item to the cart.');
+            setIsSubmitting(false);
         }
     };
 
@@ -84,11 +90,13 @@ export const ChooseProductForm = ({ product, className, onClose }: ChooseProduct
     const priceInfo = getPriceDisplay(displayPrice, product.discountPercent);
 
     return (
-        <div className={cn(className, 'pz-flex pz-h-full')} data-testid="product-modal">
-            <div className="pz-flex pz-flex-1 pz-items-center pz-justify-center pz-bg-white pz-relative">
+        <div className={cn(className, 'pz-flex pz-flex-col md:pz-flex-row pz-h-full pz-overflow-auto md:pz-overflow-hidden')} data-testid="product-modal">
+            {/* Image section */}
+            <div className="pz-flex pz-shrink-0 pz-h-[250px] sm:pz-h-[300px] md:pz-h-full md:pz-flex-1 pz-items-center pz-justify-center pz-bg-white pz-relative">
                 <ProductImage isPizza={isPizza} imageUrl={product.imageUrl} name={translatedName} size={size} />
             </div>
-            <div className="pz-relative pz-w-[490px] pz-bg-[#f7f6f5] pz-p-7 pz-flex pz-flex-col pz-overflow-y-auto">
+            {/* Content section */}
+            <div className="pz-relative pz-w-full md:pz-w-[490px] pz-bg-[#f7f6f5] pz-p-4 md:pz-p-7 pz-flex pz-flex-col md:pz-overflow-y-auto">
                 {onClose && (
                     <button
                         onClick={onClose}
@@ -157,8 +165,8 @@ export const ChooseProductForm = ({ product, className, onClose }: ChooseProduct
                     />
                 )}
                 
-                {/* Price section with discount */}
-                <div className="pz-mt-auto pz-space-y-3">
+                {/* Price section with discount - sticky on mobile */}
+                <div className="pz-mt-auto pz-space-y-3 pz-sticky pz-bottom-0 pz-bg-[#f7f6f5] pz-pt-4 pz-pb-2 md:pz-pb-0 pz-z-10">
                     {priceInfo.hasDiscount && (
                         <div className="pz-flex pz-items-center pz-gap-3">
                             <span className="pz-bg-red-500 pz-text-white pz-text-sm pz-font-bold pz-px-3 pz-py-1 pz-rounded">
@@ -173,7 +181,7 @@ export const ChooseProductForm = ({ product, className, onClose }: ChooseProduct
                         </div>
                     )}
                     <Button
-                        loading={loading}
+                        loading={loading || isSubmitting}
                         onClick={handleAddToCart}
                         data-testid="add-to-cart"
                         className="pz-h-[55px] pz-px-10 pz-text-base pz-rounded-[18px] pz-w-full">

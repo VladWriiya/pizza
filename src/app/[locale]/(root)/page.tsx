@@ -5,10 +5,12 @@ import { ProductFilters } from '@/widgets/ProductFilters';
 import { ProductGrid } from '@/widgets/ProductGrid';
 import { ProductsSection } from '@/widgets/ProductsSection';
 import { HeroPromos } from '@/widgets/HeroPromos';
+import { EmptyFilterResults } from '@/shared/EmptyFilterResults';
 import type { SearchParams } from '@/lib/server/filter-builders';
 import { getTranslations, getLocale } from 'next-intl/server';
 import { prisma } from '../../../../prisma/prisma-client';
 import { findProductsByCategory } from '@/lib/server/product-api';
+import { getIngredientsAction } from '@/features/product/actions/product.queries';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,14 +18,18 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
   const t = await getTranslations('HomePage');
   const locale = await getLocale();
   const categoriesWithProducts = await findProductsByCategory(searchParams);
-  const allCategories = await prisma.category.findMany({
-    orderBy: {
-      sortIndex: 'asc',
-    },
-  });
-  const promoCards = await prisma.promoCard.findMany({
-    where: { isActive: true },
-    orderBy: { sortIndex: 'asc' },
+  const [allCategories, promoCards, rawIngredients] = await Promise.all([
+    prisma.category.findMany({ orderBy: { sortIndex: 'asc' } }),
+    prisma.promoCard.findMany({ where: { isActive: true }, orderBy: { sortIndex: 'asc' } }),
+    getIngredientsAction(),
+  ]);
+
+  const ingredients = rawIngredients.map((ingredient) => {
+    const translations = ingredient.translations as { [key: string]: { name?: string } } | null;
+    return {
+      ...ingredient,
+      name: translations?.[locale]?.name || ingredient.name,
+    };
   });
 
   return (
@@ -32,7 +38,7 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
         <HeroPromos promoCards={promoCards} />
       </div>
 
-      <ProductToolbar categories={allCategories} />
+      <ProductToolbar categories={allCategories} ingredients={ingredients} />
 
       <Container className="pz-mt-10 pz-pb-14">
         <ProductsSection filters={<ProductFilters />}>
@@ -44,7 +50,7 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
                 </section>
               ))
             ) : (
-              <p>{t('noProductsFound')}</p>
+              <EmptyFilterResults message={t('noProductsFound')} />
             )}
           </div>
         </ProductsSection>

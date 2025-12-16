@@ -15,32 +15,57 @@ export const ProductsSection = ({ children, filters, className }: ProductsSectio
   const filtersContentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const checkShouldExpand = () => {
-      if (sectionRef.current && filtersContentRef.current) {
-        // Get the height of the filters content
-        const filtersHeight = filtersContentRef.current.offsetHeight;
-        // Get how much the user has scrolled past the start of this section
-        const sectionRect = sectionRef.current.getBoundingClientRect();
-        const scrolledPastSection = -sectionRect.top + 120; // 120 is header offset
+    const HYSTERESIS = 150; // pixels buffer to prevent flickering
+    const THROTTLE_MS = 100; // minimum time between updates
+    let lastUpdate = 0;
+    let pendingUpdate: number | null = null;
 
-        // Expand when scrolled past the filters height
-        const shouldExpand = scrolledPastSection > filtersHeight;
-        setIsExpanded(shouldExpand);
+    const checkShouldExpand = () => {
+      const now = Date.now();
+
+      // Throttle: skip if called too recently
+      if (now - lastUpdate < THROTTLE_MS) {
+        // Schedule a delayed check if not already scheduled
+        if (!pendingUpdate) {
+          pendingUpdate = window.setTimeout(() => {
+            pendingUpdate = null;
+            checkShouldExpand();
+          }, THROTTLE_MS);
+        }
+        return;
+      }
+      lastUpdate = now;
+
+      if (sectionRef.current && filtersContentRef.current) {
+        const filtersHeight = filtersContentRef.current.offsetHeight;
+        const sectionRect = sectionRef.current.getBoundingClientRect();
+        const scrolledPastSection = -sectionRect.top + 120;
+
+        setIsExpanded((prev) => {
+          if (prev) {
+            return scrolledPastSection > filtersHeight - HYSTERESIS;
+          } else {
+            return scrolledPastSection > filtersHeight + HYSTERESIS;
+          }
+        });
       }
     };
 
-    window.addEventListener('scroll', checkShouldExpand);
+    window.addEventListener('scroll', checkShouldExpand, { passive: true });
     checkShouldExpand();
 
-    return () => window.removeEventListener('scroll', checkShouldExpand);
+    return () => {
+      window.removeEventListener('scroll', checkShouldExpand);
+      if (pendingUpdate) clearTimeout(pendingUpdate);
+    };
   }, []);
 
   return (
-    <div id="products" ref={sectionRef} className={cn('pz-flex pz-gap-[60px] pz-transition-all pz-duration-300', className)}>
-      {/* Filters sidebar */}
+    <div id="products" ref={sectionRef} className={cn('pz-flex pz-gap-6 md:pz-gap-[60px] pz-transition-all pz-duration-300', className)}>
+      {/* Filters sidebar - hidden on mobile */}
       <div
         className={cn(
-          'pz-shrink-0 pz-transition-all pz-duration-300',
+          'pz-shrink-0 pz-transition-all pz-duration-300 pz-hidden md:pz-block',
           isExpanded
             ? 'pz-w-0 pz-opacity-0 pz-overflow-hidden'
             : 'pz-w-[250px] pz-opacity-100'
