@@ -52,8 +52,8 @@ export const PizzaOptions: React.FC<Props> = ({
 
       {/* Extra ingredients (addable) */}
       <p className="pz-mt-5 pz-font-bold">{t('ingredients')}</p>
-      <div className="pz-bg-gray-50 pz-p-5 pz-rounded-md pz-max-h-[320px] pz-overflow-auto scrollbar pz-mt-2">
-        <div className="pz-grid pz-grid-cols-3 pz-gap-3">
+      <div className="pz-bg-gray-50 pz-p-3 sm:pz-p-5 pz-rounded-md pz-max-h-[250px] sm:pz-max-h-[320px] pz-overflow-auto scrollbar pz-mt-2">
+        <div className="pz-grid pz-grid-cols-2 sm:pz-grid-cols-3 pz-gap-2 sm:pz-gap-3">
           {ingredients.map((ingredient) => {
             const translations = ingredient.translations as { [key: string]: { name?: string } } | null;
             const translatedIngredientName =
