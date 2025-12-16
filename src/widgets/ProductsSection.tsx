@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 
 interface ProductsSectionProps {
@@ -11,57 +11,94 @@ interface ProductsSectionProps {
 
 export const ProductsSection = ({ children, filters, className }: ProductsSectionProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [filtersHeight, setFiltersHeight] = useState(0);
+  const [canStick, setCanStick] = useState(true);
   const sectionRef = useRef<HTMLDivElement>(null);
   const filtersContentRef = useRef<HTMLDivElement>(null);
+  const isExpandingRef = useRef(false);
+
+  // Track filters height changes (e.g. when ingredients list expands)
+  useEffect(() => {
+    const filtersEl = filtersContentRef.current;
+    if (!filtersEl) return;
+
+    const updateHeight = () => {
+      const height = filtersEl.offsetHeight;
+      setFiltersHeight(height);
+      // Can stick only if filters fit in viewport (with some margin for toolbar)
+      setCanStick(height < window.innerHeight - 150);
+    };
+
+    updateHeight();
+
+    const resizeObserver = new ResizeObserver(updateHeight);
+    resizeObserver.observe(filtersEl);
+
+    window.addEventListener('resize', updateHeight);
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener('resize', updateHeight);
+    };
+  }, []);
+
+  const checkShouldExpand = useCallback(() => {
+    if (isExpandingRef.current || !sectionRef.current || filtersHeight === 0) return;
+
+    const sectionRect = sectionRef.current.getBoundingClientRect();
+    const scrolledPastSection = -sectionRect.top + 120;
+    const HYSTERESIS = 150;
+
+    const shouldExpand = isExpanded
+      ? scrolledPastSection > filtersHeight - HYSTERESIS
+      : scrolledPastSection > filtersHeight + HYSTERESIS;
+
+    if (shouldExpand !== isExpanded) {
+      isExpandingRef.current = true;
+      const scrollY = window.scrollY;
+
+      setIsExpanded(shouldExpand);
+
+      requestAnimationFrame(() => {
+        window.scrollTo(0, scrollY);
+        setTimeout(() => {
+          isExpandingRef.current = false;
+        }, 350);
+      });
+    }
+  }, [isExpanded, filtersHeight]);
 
   useEffect(() => {
-    const HYSTERESIS = 150; // pixels buffer to prevent flickering
-    const THROTTLE_MS = 100; // minimum time between updates
+    const THROTTLE_MS = 150;
     let lastUpdate = 0;
     let pendingUpdate: number | null = null;
 
-    const checkShouldExpand = () => {
+    const handleScroll = () => {
       const now = Date.now();
-
-      // Throttle: skip if called too recently
       if (now - lastUpdate < THROTTLE_MS) {
-        // Schedule a delayed check if not already scheduled
         if (!pendingUpdate) {
           pendingUpdate = window.setTimeout(() => {
             pendingUpdate = null;
-            checkShouldExpand();
+            handleScroll();
           }, THROTTLE_MS);
         }
         return;
       }
       lastUpdate = now;
-
-      if (sectionRef.current && filtersContentRef.current) {
-        const filtersHeight = filtersContentRef.current.offsetHeight;
-        const sectionRect = sectionRef.current.getBoundingClientRect();
-        const scrolledPastSection = -sectionRect.top + 120;
-
-        setIsExpanded((prev) => {
-          if (prev) {
-            return scrolledPastSection > filtersHeight - HYSTERESIS;
-          } else {
-            return scrolledPastSection > filtersHeight + HYSTERESIS;
-          }
-        });
-      }
+      checkShouldExpand();
     };
 
-    window.addEventListener('scroll', checkShouldExpand, { passive: true });
+    window.addEventListener('scroll', handleScroll, { passive: true });
     checkShouldExpand();
 
     return () => {
-      window.removeEventListener('scroll', checkShouldExpand);
+      window.removeEventListener('scroll', handleScroll);
       if (pendingUpdate) clearTimeout(pendingUpdate);
     };
-  }, []);
+  }, [checkShouldExpand]);
 
   return (
-    <div id="products" ref={sectionRef} className={cn('pz-flex pz-gap-6 md:pz-gap-[60px] pz-transition-all pz-duration-300', className)}>
+    <div id="products" ref={sectionRef} className={cn('pz-flex pz-gap-6 md:pz-gap-[60px]', className)}>
       {/* Filters sidebar - hidden on mobile */}
       <div
         className={cn(
@@ -71,7 +108,7 @@ export const ProductsSection = ({ children, filters, className }: ProductsSectio
             : 'pz-w-[250px] pz-opacity-100'
         )}
       >
-        <div ref={filtersContentRef} className="pz-sticky pz-top-28">
+        <div ref={filtersContentRef} className={cn(canStick && 'pz-sticky pz-top-28')}>
           {filters}
         </div>
       </div>
