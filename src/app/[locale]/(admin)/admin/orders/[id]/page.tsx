@@ -7,6 +7,7 @@ import { UpdateStatusForm } from './_components/UpdateStatusForm';
 import { LargeOrderApprovalPanel } from './_components/LargeOrderApprovalPanel';
 import { NoCourierPanel } from './_components/NoCourierPanel';
 import { RefundPanel } from './_components/RefundPanel';
+import { CancelOrderPanel } from './_components/CancelOrderPanel';
 import { prisma } from '../../../../../../../prisma/prisma-client';
 
 
@@ -94,6 +95,11 @@ export default async function OrderDetailsPage({ params }: OrderDetailsPageProps
             refundedAmount={order.refundedAmount}
             paymentId={order.paymentId}
             isDemo={order.isDemo}
+            status={order.status}
+          />
+
+          <CancelOrderPanel
+            orderId={order.id}
             status={order.status}
           />
         </div>

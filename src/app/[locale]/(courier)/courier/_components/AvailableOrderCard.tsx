@@ -3,10 +3,25 @@
 import { useState } from 'react';
 import { Order } from '@prisma/client';
 import { Button } from '@/shared/ui/button';
-import { MapPin, Package, Clock } from 'lucide-react';
+import { MapPin, Package, Clock, CalendarClock } from 'lucide-react';
 import { acceptDeliveryAction } from '@/features/order-management';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
+
+function formatScheduledTime(date: Date): string {
+  const d = new Date(date);
+  const hours = d.getHours().toString().padStart(2, '0');
+  const mins = d.getMinutes().toString().padStart(2, '0');
+  const today = new Date();
+  const isToday = d.toDateString() === today.toDateString();
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const isTomorrow = d.toDateString() === tomorrow.toDateString();
+
+  if (isToday) return `Today ${hours}:${mins}`;
+  if (isTomorrow) return `Tomorrow ${hours}:${mins}`;
+  return `${d.getDate()}/${d.getMonth() + 1} ${hours}:${mins}`;
+}
 
 interface AvailableOrderCardProps {
   order: Order;
@@ -70,6 +85,13 @@ export function AvailableOrderCard({ order }: AvailableOrderCardProps) {
           Ready
         </span>
       </div>
+
+      {order.scheduledFor && (
+        <div className="pz-flex pz-items-center pz-gap-1 pz-text-xs sm:pz-text-sm pz-text-purple-600 pz-font-medium pz-mb-2">
+          <CalendarClock size={14} />
+          <span>Scheduled: {formatScheduledTime(order.scheduledFor)}</span>
+        </div>
+      )}
 
       <div className="pz-flex pz-items-center pz-justify-between pz-mb-3 sm:pz-mb-4">
         <div className="pz-flex pz-items-center pz-gap-3 sm:pz-gap-4 pz-text-xs sm:pz-text-sm pz-text-gray-600">

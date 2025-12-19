@@ -227,6 +227,7 @@ export async function getOrderForTrackingAction(orderId: number, token?: string)
           fullName: order.fullName,
           address: order.address,
           phone: order.phone,
+          scheduledFor: order.scheduledFor,
           prepStartedAt: order.prepStartedAt,
           prepEstimatedMinutes: order.prepEstimatedMinutes,
           deliveryStartedAt: order.deliveryStartedAt,

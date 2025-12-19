@@ -87,6 +87,7 @@
     "yourCart": "1. Your Cart",
     "personalInfo": "2. Personal Information",
     "shippingAddress": "3. Shipping Address",
+    "deliveryTime": "4. Delivery Time",
     "firstName": "First Name",
     "lastName": "Last Name",
     "email": "E-Mail",
@@ -97,7 +98,16 @@
     "sidebarTitle": "Total:",
     "cartValue": "Cart value:",
     "vat": "VAT (18%):",
-    "delivery": "Delivery:",
+    "delivery": {
+      "label": "Delivery:",
+      "asap": "As soon as possible",
+      "scheduled": "Schedule for later",
+      "selectDate": "Select date",
+      "selectTime": "Select time",
+      "today": "Today",
+      "tomorrow": "Tomorrow",
+      "noSlotsAvailable": "No slots available"
+    },
     "fillDetails": "Please fill in your details to proceed to payment.",
     "coupon": "Coupon",
     "couponApplied": "Coupon applied! Discount:",
@@ -112,7 +122,26 @@
     "signOut": "Sign Out",
     "date": "Date:",
     "total": "Total:",
-    "orderStatus": "Order #{id} - {status}"
+    "orderStatus": "Order #{id} - {status}",
+    "emailNotVerified": "Email not verified",
+    "verifyEmailDescription": "Please verify your email address to ensure you receive order updates and can recover your account.",
+    "sendVerificationEmail": "Send verification email",
+    "sendingEmail": "Sending...",
+    "favorites": "Favorites",
+    "noFavorites": "You haven't saved any favorites yet",
+    "browseProducts": "Browse Products",
+    "removeFromFavorites": "Remove from favorites",
+    "removedFromFavorites": "Removed from favorites"
+  },
+  "VerifyEmailPage": {
+    "verifying": "Verifying your email...",
+    "invalidLink": "Invalid verification link",
+    "verificationFailed": "Failed to verify email",
+    "errorTitle": "Verification Failed",
+    "successTitle": "Email Verified!",
+    "successDescription": "Your email has been successfully verified. You can now enjoy all features of your account.",
+    "backToHome": "Back to Home",
+    "goToProfile": "Go to Profile"
   },
    "ProductModal": {
     "ingredients": "Add Extra",

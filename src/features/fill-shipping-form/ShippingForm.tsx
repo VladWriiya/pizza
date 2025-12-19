@@ -6,6 +6,7 @@ import { Controller, useFormContext } from 'react-hook-form';
 import { useTranslations } from 'next-intl';
 import { FormTextarea } from '@/shared/FormTextarea';
 import { FormField } from '@/shared/form/FormField';
+import { DeliveryTimeSelector } from './DeliveryTimeSelector';
 
 export const ShippingForm = () => {
   const t = useTranslations('CheckoutForm');
@@ -39,11 +40,15 @@ export const ShippingForm = () => {
               />
             )}
           </FormField>
-          
+
           <FormInput name="apartment" placeholder={t('apartment')} />
-          
+
           <FormTextarea name="comment" placeholder={t('comment')} rows={3} />
         </div>
+      </WhiteBlock>
+
+      <WhiteBlock title={t('deliveryTime')}>
+        <DeliveryTimeSelector />
       </WhiteBlock>
     </>
   );

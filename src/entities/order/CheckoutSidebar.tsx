@@ -62,7 +62,7 @@ export const CheckoutSidebar: React.FC<Props> = ({ priceDetails, className, chil
             />
         )}
 
-        <CheckoutDetailRow title={t('delivery')} value={`${priceDetails.delivery.toFixed(2)} ILS`} icon={Truck} />
+        <CheckoutDetailRow title={t('delivery.label')} value={`${priceDetails.delivery.toFixed(2)} ILS`} icon={Truck} />
 
         <div className="pz-mt-6 pz-border-t pz-pt-6">
             {!priceDetails.couponCode && <ApplyCouponForm />}

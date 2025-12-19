@@ -1,7 +1,6 @@
 import { AuthOptions } from 'next-auth';
 import GitHubProvider from 'next-auth/providers/github';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import GoogleProvider from 'next-auth/providers/google';
 
 import { compare } from 'bcrypt';
 import { UserRole } from '@prisma/client';
@@ -11,10 +10,6 @@ import { mergeGuestCartOnLogin } from './cart-utils';
 
 export const authOptions: AuthOptions = {
   providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID || '',
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
-    }),
     GitHubProvider({
       clientId: process.env.GITHUB_ID || '',
       clientSecret: process.env.GITHUB_SECRET || '',
@@ -39,14 +34,12 @@ export const authOptions: AuthOptions = {
         if (!isPasswordValid) {
           return null;
         }
-        if (!user.verified) {
-          throw new Error('Email not verified. Please check your inbox.');
-        }
         return {
           id: String(user.id),
           email: user.email,
           name: user.fullName,
           role: user.role,
+          verified: !!user.verified,
         };
       },
     }),
@@ -108,6 +101,7 @@ export const authOptions: AuthOptions = {
         if (dbUser) {
           token.id = String(dbUser.id);
           token.role = dbUser.role;
+          token.verified = !!dbUser.verified;
         }
       }
       return token;
@@ -116,6 +110,7 @@ export const authOptions: AuthOptions = {
       if (session.user) {
         session.user.id = token.id as string;
         session.user.role = token.role as UserRole;
+        session.user.verified = token.verified as boolean;
       }
       return session;
     },

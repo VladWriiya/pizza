@@ -8,6 +8,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { capturePayPalOrder } from '@/lib/paypal-sdk';
 import { prisma } from '../../../../../prisma/prisma-client';
+import { awardOrderPointsAction } from '@/app/[locale]/actions/loyalty';
 
 export async function POST(req: NextRequest) {
   try {
@@ -90,11 +91,14 @@ export async function POST(req: NextRequest) {
 
       return {
         id: item.id,
+        productItemId: item.productItemId,
         name: item.productItem.product.name,
         price: item.productItem.price,
         quantity: item.quantity,
         imageUrl: item.productItem.product.imageUrl,
         details: details.length > 0 ? details.join(' | ') : undefined,
+        ingredientIds: item.ingredients.map((ing) => ing.id),
+        removedIngredientIds: removedIds.length > 0 ? removedIds : undefined,
       };
     });
 
@@ -113,6 +117,7 @@ export async function POST(req: NextRequest) {
       phone: formData.phone,
       address: fullAddress,
       comment: formData.comment,
+      scheduledFor: formData.scheduledFor ? new Date(formData.scheduledFor) : null,
       totalAmount: cart.totalAmount,
       status: OrderStatus.CONFIRMED, // Start as CONFIRMED, kitchen will process
       paymentId: captureResult.data.id,
@@ -130,6 +135,15 @@ export async function POST(req: NextRequest) {
       await tx.cart.update({ where: { id: cartId }, data: { totalAmount: 0 } });
       return createdOrder;
     });
+
+    // Award loyalty points for authenticated users
+    if (userId) {
+      try {
+        await awardOrderPointsAction(userId, order.id, cart.totalAmount);
+      } catch (loyaltyError) {
+        console.error('Failed to award loyalty points, but order was processed:', loyaltyError);
+      }
+    }
 
     try {
       await sendEmail(

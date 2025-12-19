@@ -9,9 +9,10 @@ interface ProductGridProps {
   category: Category & { products: ProductWithDetails[] };
   className?: string;
   locale: string;
+  favoriteIds?: number[];
 }
 
-export const ProductGrid = ({ category, className, locale }: ProductGridProps) => {
+export const ProductGrid = ({ category, className, locale, favoriteIds = [] }: ProductGridProps) => {
   const translations = category.translations as { [key: string]: { name?: string } } | null;
   const title = translations?.[locale]?.name || category.name;
 
@@ -27,7 +28,12 @@ export const ProductGrid = ({ category, className, locale }: ProductGridProps) =
         'products-grid'
       )}>
         {category.products.map((product) => (
-          <ProductCard key={product.id} product={product} locale={locale} />
+          <ProductCard
+            key={product.id}
+            product={product}
+            locale={locale}
+            isFavorite={favoriteIds.includes(product.id)}
+          />
         ))}
       </div>
     </section>

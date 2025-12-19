@@ -54,6 +54,7 @@ export const OrderForm: React.FC = () => {
       address: '',
       apartment: '',
       comment: '',
+      scheduledFor: '',
     },
   });
 

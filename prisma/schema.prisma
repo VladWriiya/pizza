@@ -19,12 +19,17 @@ model User {
     provider   String?
     providerId String?
 
+    // Loyalty program
+    loyaltyPoints       Int                  @default(0)
+    loyaltyTransactions LoyaltyTransaction[]
+
     cart                Cart?
     orders              Order[]
     kitchenOrders       Order[]              @relation("KitchenOrders")
     courierOrders       Order[]              @relation("CourierOrders")
     verificationCode    VerificationCode?
     passwordResetTokens PasswordResetToken[]
+    favorites           Favorite[]
 
     // Demo mode fields
     isDemo          Boolean   @default(false)
@@ -64,6 +69,7 @@ model Product {
     ingredients     Ingredient[] @relation("ProductIngredients")
     baseIngredients Ingredient[] @relation("ProductBaseIngredients")
     items           ProductItem[]
+    favorites       Favorite[]
 
     category   Category @relation(fields: [categoryId], references: [id])
     categoryId Int
@@ -161,6 +167,9 @@ model Order {
     phone    String
     address  String
     comment  String?
+
+    // Pre-order scheduling (null = ASAP delivery)
+    scheduledFor DateTime?
 
     // Kitchen assignment
     kitchenUser          User?     @relation("KitchenOrders", fields: [kitchenUserId], references: [id])
@@ -308,4 +317,44 @@ model SystemSettings {
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+}
+
+model Favorite {
+    id Int @id @default(autoincrement())
+
+    user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId Int
+
+    product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+    productId Int
+
+    createdAt DateTime @default(now())
+
+    @@unique([userId, productId])
+    @@index([userId])
+}
+
+model LoyaltyTransaction {
+    id Int @id @default(autoincrement())
+
+    user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId Int
+
+    // Transaction details
+    points      Int                    // Positive = earned, Negative = spent
+    type        LoyaltyTransactionType
+    description String?
+    orderId     Int?                   // Reference to order (if applicable)
+
+    createdAt DateTime @default(now())
+
+    @@index([userId])
+}
+
+enum LoyaltyTransactionType {
+    EARNED_ORDER      // Points earned from order
+    SPENT_DISCOUNT    // Points spent for discount
+    ADMIN_ADJUSTMENT  // Manual adjustment by admin
+    BONUS             // Promotional bonus
+    EXPIRED           // Points expired (if implementing expiry)
 }

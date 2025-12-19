@@ -1,4 +1,4 @@
-import { MapPin, Phone, User, ShoppingBag } from 'lucide-react';
+import { MapPin, Phone, User, ShoppingBag, CalendarClock } from 'lucide-react';
 
 interface OrderItem {
   name: string;
@@ -16,7 +16,19 @@ interface OrderDetailsProps {
     totalAmount: number;
     items: unknown;
     createdAt: Date;
+    scheduledFor?: Date | null;
   };
+}
+
+function formatScheduledTime(date: Date): string {
+  const d = new Date(date);
+  return d.toLocaleString(undefined, {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
 }
 
 function parseOrderItems(items: unknown): OrderItem[] {
@@ -52,6 +64,14 @@ export function OrderDetails({ order }: OrderDetailsProps) {
               {order.phone}
             </a>
           </div>
+          {order.scheduledFor && (
+            <div className="pz-flex pz-items-center pz-gap-3 pz-mt-2 pz-bg-purple-50 pz-p-2 pz-rounded-lg">
+              <CalendarClock size={16} className="pz-text-purple-600" />
+              <span className="pz-text-purple-700 pz-font-medium">
+                Scheduled: {formatScheduledTime(order.scheduledFor)}
+              </span>
+            </div>
+          )}
         </div>
       </div>
 

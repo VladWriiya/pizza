@@ -73,6 +73,7 @@ export function KitchenOrderCard({ order, status }: KitchenOrderCardProps) {
         orderId={order.id}
         elapsedMinutes={elapsedMinutes}
         prepEstimatedMinutes={order.prepEstimatedMinutes}
+        scheduledFor={order.scheduledFor}
         status={status}
         isUrgent={isUrgent}
       />

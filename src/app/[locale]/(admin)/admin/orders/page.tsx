@@ -8,6 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/shared/ui/badge';
 import { Button } from '@/shared/ui';
 import { OrderStatusFilter } from './_components/OrderStatusFilter';
+import { ExportOrdersButton } from './_components/ExportOrdersButton';
 import { OrderStatus } from '@prisma/client';
 
 
@@ -36,7 +37,10 @@ export default async function OrdersPage({ searchParams }: Props) {
         <Heading level="1">
           Orders ({displayedCount}{statusLabel !== 'All' ? ` ${statusLabel}` : ''})
         </Heading>
-        <OrdersSearch />
+        <div className="pz-flex pz-items-center pz-gap-3">
+          <ExportOrdersButton />
+          <OrdersSearch />
+        </div>
       </div>
 
       <OrderStatusFilter counts={counts} />

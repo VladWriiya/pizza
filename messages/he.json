@@ -87,6 +87,7 @@
     "yourCart": "1. העגלה שלך",
     "personalInfo": "2. פרטים אישיים",
     "shippingAddress": "3. כתובת למשלוח",
+    "deliveryTime": "4. זמן משלוח",
     "firstName": "שם פרטי",
     "lastName": "שם משפחה",
     "email": "אימייל",
@@ -97,7 +98,16 @@
     "sidebarTitle": "סה\"כ:",
     "cartValue": "שווי עגלה:",
     "vat": "מע\"מ (18%):",
-    "delivery": "משלוח:",
+    "delivery": {
+      "label": "משלוח:",
+      "asap": "הכי מהר שאפשר",
+      "scheduled": "תזמן למועד מאוחר",
+      "selectDate": "בחר תאריך",
+      "selectTime": "בחר שעה",
+      "today": "היום",
+      "tomorrow": "מחר",
+      "noSlotsAvailable": "אין זמנים פנויים"
+    },
     "fillDetails": "אנא מלא את פרטיך כדי להמשיך לתשלום.",
     "coupon": "קופון",
     "couponApplied": "הקופון הופעל! הנחה:",
@@ -113,7 +123,26 @@
     "signOut": "התנתק",
     "date": "תאריך:",
     "total": "סה\"כ:",
-    "orderStatus": "הזמנה #{id} - {status}"
+    "orderStatus": "הזמנה #{id} - {status}",
+    "emailNotVerified": "האימייל לא אומת",
+    "verifyEmailDescription": "אנא אמת את כתובת האימייל שלך כדי לקבל עדכוני הזמנות ולאפשר שחזור חשבון.",
+    "sendVerificationEmail": "שלח אימייל אימות",
+    "sendingEmail": "שולח...",
+    "favorites": "מועדפים",
+    "noFavorites": "עדיין לא שמרת מועדפים",
+    "browseProducts": "עיין במוצרים",
+    "removeFromFavorites": "הסר מהמועדפים",
+    "removedFromFavorites": "הוסר מהמועדפים"
+  },
+  "VerifyEmailPage": {
+    "verifying": "מאמת את האימייל שלך...",
+    "invalidLink": "קישור אימות לא תקין",
+    "verificationFailed": "אימות האימייל נכשל",
+    "errorTitle": "האימות נכשל",
+    "successTitle": "האימייל אומת!",
+    "successDescription": "האימייל שלך אומת בהצלחה. כעת תוכל ליהנות מכל התכונות של החשבון שלך.",
+    "backToHome": "חזרה לדף הבית",
+    "goToProfile": "עבור לפרופיל"
   },
   "ProductModal": {
     "ingredients": "הוסף תוספות",

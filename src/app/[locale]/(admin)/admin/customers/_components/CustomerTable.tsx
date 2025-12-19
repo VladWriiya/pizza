@@ -9,6 +9,7 @@ import {
 } from '@/shared/ui/table';
 import { Button } from '@/shared/ui';
 import { SortableHeader } from './SortableHeader';
+import { Gift } from 'lucide-react';
 import type { CustomerListItem } from '@/app/[locale]/actions/customer';
 
 interface CustomerTableProps {
@@ -40,6 +41,12 @@ export function CustomerTable({ customers }: CustomerTableProps) {
             <SortableHeader field="totalSpent" label="Total Spent" />
           </TableHead>
           <TableHead>
+            <div className="pz-flex pz-items-center pz-gap-1">
+              <Gift size={14} className="pz-text-purple-600" />
+              Points
+            </div>
+          </TableHead>
+          <TableHead>
             <SortableHeader field="lastOrder" label="Last Order" />
           </TableHead>
           <TableHead className="pz-text-right">Actions</TableHead>
@@ -57,6 +64,15 @@ export function CustomerTable({ customers }: CustomerTableProps) {
               </span>
             </TableCell>
             <TableCell className="pz-font-medium">{customer.totalSpent} ILS</TableCell>
+            <TableCell>
+              {customer.loyaltyPoints > 0 ? (
+                <span className="pz-px-2 pz-py-1 pz-bg-purple-100 pz-text-purple-800 pz-rounded-full pz-text-sm pz-font-medium">
+                  {customer.loyaltyPoints}
+                </span>
+              ) : (
+                <span className="pz-text-gray-400">0</span>
+              )}
+            </TableCell>
             <TableCell className="pz-text-gray-600">
               {customer.lastOrderDate
                 ? new Date(customer.lastOrderDate).toLocaleDateString()

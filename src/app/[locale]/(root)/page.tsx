@@ -11,6 +11,7 @@ import { getTranslations, getLocale } from 'next-intl/server';
 import { prisma } from '../../../../prisma/prisma-client';
 import { findProductsByCategory } from '@/lib/server/product-api';
 import { getIngredientsAction } from '@/features/product/actions/product.queries';
+import { getFavoriteIdsAction } from '@/app/[locale]/actions/favorites';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,10 +19,11 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
   const t = await getTranslations('HomePage');
   const locale = await getLocale();
   const categoriesWithProducts = await findProductsByCategory(searchParams);
-  const [allCategories, promoCards, rawIngredients] = await Promise.all([
+  const [allCategories, promoCards, rawIngredients, favoriteIds] = await Promise.all([
     prisma.category.findMany({ orderBy: { sortIndex: 'asc' } }),
     prisma.promoCard.findMany({ where: { isActive: true }, orderBy: { sortIndex: 'asc' } }),
     getIngredientsAction(),
+    getFavoriteIdsAction(),
   ]);
 
   const ingredients = rawIngredients.map((ingredient) => {
@@ -46,7 +48,7 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
             {categoriesWithProducts.length > 0 ? (
               categoriesWithProducts.map((category) => (
                 <section key={category.id} id={category.name}>
-                  <ProductGrid category={category} locale={locale} />
+                  <ProductGrid category={category} locale={locale} favoriteIds={favoriteIds} />
                 </section>
               ))
             ) : (

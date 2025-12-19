@@ -7,14 +7,16 @@ import { Plus } from 'lucide-react';
 import type { ProductWithDetails } from '@/lib/prisma-types';
 import { AvailabilityStatus } from '@prisma/client';
 import { getTranslations } from 'next-intl/server';
+import { FavoriteButton } from '@/shared/FavoriteButton';
 
 export interface ProductCardProps {
   product: ProductWithDetails;
   className?: string;
   locale: string;
+  isFavorite?: boolean;
 }
 
-export const ProductCard = async ({ product, className, locale }: ProductCardProps) => {
+export const ProductCard = async ({ product, className, locale, isFavorite = false }: ProductCardProps) => {
   const t = await getTranslations('ProductCard');
   const minPrice = Math.min(...product.items.map((item) => item.price));
   const hasMultipleVariants = product.items.length > 1;
@@ -46,33 +48,42 @@ export const ProductCard = async ({ product, className, locale }: ProductCardPro
         className
       )}
     >
-      <Link
-        href={`/product/${product.id}`}
-        scroll={false}
-        className={cn(
-          'pz-flex pz-justify-center pz-items-center pz-bg-secondary pz-rounded-lg pz-h-[200px] sm:pz-h-[230px] md:pz-h-[260px] pz-relative',
-          !isAvailable && 'pz-pointer-events-none'
-        )}
-      >
-        {/* Discount badge */}
-        {priceInfo.hasDiscount && (
-          <span className="pz-absolute pz-top-3 pz-start-3 pz-bg-red-500 pz-text-white pz-text-xs pz-font-bold pz-px-2 pz-py-1 pz-rounded pz-z-10">
-            -{priceInfo.discountPercent}%
-          </span>
-        )}
-        {isTemporarilyUnavailable && (
-          <div className="pz-absolute pz-inset-0 pz-bg-black/30 pz-flex pz-items-center pz-justify-center pz-rounded-lg pz-z-10">
-            <span className="pz-text-white pz-font-bold pz-text-xl pz-bg-black/50 pz-px-4 pz-py-2 pz-rounded-md">
-              Temporarily Unavailable
+      <div className="pz-relative">
+        <Link
+          href={`/product/${product.id}`}
+          scroll={false}
+          className={cn(
+            'pz-flex pz-justify-center pz-items-center pz-bg-secondary pz-rounded-lg pz-h-[200px] sm:pz-h-[230px] md:pz-h-[260px]',
+            !isAvailable && 'pz-pointer-events-none'
+          )}
+        >
+          {/* Discount badge */}
+          {priceInfo.hasDiscount && (
+            <span className="pz-absolute pz-top-3 pz-start-3 pz-bg-red-500 pz-text-white pz-text-xs pz-font-bold pz-px-2 pz-py-1 pz-rounded pz-z-10">
+              -{priceInfo.discountPercent}%
             </span>
-          </div>
-        )}
-        <img
-          className="pz-w-full pz-h-full pz-object-contain"
-          src={product.imageUrl}
-          alt={translatedName}
+          )}
+          {isTemporarilyUnavailable && (
+            <div className="pz-absolute pz-inset-0 pz-bg-black/30 pz-flex pz-items-center pz-justify-center pz-rounded-lg pz-z-10">
+              <span className="pz-text-white pz-font-bold pz-text-xl pz-bg-black/50 pz-px-4 pz-py-2 pz-rounded-md">
+                Temporarily Unavailable
+              </span>
+            </div>
+          )}
+          <img
+            className="pz-w-full pz-h-full pz-object-contain"
+            src={product.imageUrl}
+            alt={translatedName}
+          />
+        </Link>
+        {/* Favorite button */}
+        <FavoriteButton
+          productId={product.id}
+          initialFavorite={isFavorite}
+          className="pz-absolute pz-top-3 pz-end-3 pz-z-10 pz-shadow-sm"
+          size={20}
         />
-      </Link>
+      </div>
 
       <div className="pz-flex-grow pz-flex pz-flex-col pz-mt-3">
         <Link

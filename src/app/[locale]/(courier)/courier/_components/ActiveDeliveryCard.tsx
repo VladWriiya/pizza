@@ -3,10 +3,25 @@
 import { useState, useEffect } from 'react';
 import { Order } from '@prisma/client';
 import { Button } from '@/shared/ui/button';
-import { Phone, MapPin, Clock, CheckCircle, Navigation } from 'lucide-react';
+import { Phone, MapPin, Clock, CheckCircle, Navigation, CalendarClock } from 'lucide-react';
 import { markDeliveredAction } from '@/features/order-management';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
+
+function formatScheduledTime(date: Date): string {
+  const d = new Date(date);
+  const hours = d.getHours().toString().padStart(2, '0');
+  const mins = d.getMinutes().toString().padStart(2, '0');
+  const today = new Date();
+  const isToday = d.toDateString() === today.toDateString();
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const isTomorrow = d.toDateString() === tomorrow.toDateString();
+
+  if (isToday) return `Today ${hours}:${mins}`;
+  if (isTomorrow) return `Tomorrow ${hours}:${mins}`;
+  return `${d.getDate()}/${d.getMonth() + 1} ${hours}:${mins}`;
+}
 
 interface ActiveDeliveryCardProps {
   order: Order;
@@ -112,6 +127,13 @@ export function ActiveDeliveryCard({ order }: ActiveDeliveryCardProps) {
       {/* Customer Info - Most Important */}
       <div className="pz-p-3 sm:pz-p-4 pz-border-b pz-border-gray-100">
         <h4 className="pz-text-xl sm:pz-text-2xl pz-font-bold pz-mb-2">{order.fullName}</h4>
+
+        {order.scheduledFor && (
+          <div className="pz-flex pz-items-center pz-gap-2 pz-text-sm pz-text-purple-600 pz-font-medium pz-mb-3 pz-bg-purple-50 pz-p-2 pz-rounded-lg">
+            <CalendarClock size={16} />
+            <span>Scheduled: {formatScheduledTime(order.scheduledFor)}</span>
+          </div>
+        )}
 
         {/* Phone - Large and tappable */}
         <button
