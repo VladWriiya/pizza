@@ -1,0 +1,77 @@
+'use client';
+
+import { Button } from '@/shared/ui/button';
+import { Minus, Plus } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import React from 'react';
+
+export interface SliderControlProps {
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  step: number;
+  unit: string;
+  onChange: (value: number) => void;
+  icon: React.ReactNode;
+}
+
+export const SliderControl = ({ label, value, min, max, step, unit, onChange, icon }: SliderControlProps) => (
+  <div className="pz-space-y-2">
+    <div className="pz-flex pz-items-center pz-justify-between">
+      <div className="pz-flex pz-items-center pz-gap-2">
+        {icon}
+        <span className="pz-text-sm pz-font-medium">{label}</span>
+      </div>
+      <span className="pz-text-sm pz-font-bold pz-min-w-[50px] pz-text-end">{value}{unit}</span>
+    </div>
+    <div className="pz-flex pz-items-center pz-gap-2">
+      <Button
+        size="icon"
+        variant="outline"
+        className="pz-h-8 pz-w-8"
+        onClick={() => onChange(Math.max(min, value - step))}
+        disabled={value <= min}
+      >
+        <Minus size={14} />
+      </Button>
+      <div className="pz-flex-1 pz-h-2 pz-bg-secondary pz-rounded-full pz-relative">
+        <div
+          className="pz-absolute pz-inset-y-0 pz-start-0 pz-bg-primary pz-rounded-full pz-transition-all"
+          style={{ width: `${((value - min) / (max - min)) * 100}%` }}
+        />
+      </div>
+      <Button
+        size="icon"
+        variant="outline"
+        className="pz-h-8 pz-w-8"
+        onClick={() => onChange(Math.min(max, value + step))}
+        disabled={value >= max}
+      >
+        <Plus size={14} />
+      </Button>
+    </div>
+  </div>
+);
+
+export interface ToggleButtonProps {
+  label: string;
+  active: boolean;
+  onClick: () => void;
+  icon: React.ReactNode;
+}
+
+export const ToggleButton = ({ label, active, onClick, icon }: ToggleButtonProps) => (
+  <button
+    onClick={onClick}
+    className={cn(
+      'pz-flex pz-flex-col pz-items-center pz-gap-1 pz-p-3 pz-rounded-lg pz-border pz-transition-all',
+      active
+        ? 'pz-bg-primary pz-text-primary-foreground pz-border-primary'
+        : 'pz-bg-card pz-border-border hover:pz-border-primary/50'
+    )}
+  >
+    {icon}
+    <span className="pz-text-xs pz-font-medium pz-text-center pz-leading-tight">{label}</span>
+  </button>
+);

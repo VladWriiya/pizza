@@ -7,6 +7,7 @@ import { compare } from 'bcrypt';
 import { UserRole } from '@prisma/client';
 import { cookies } from 'next/headers';
 import { prisma } from '../../prisma/prisma-client';
+import { mergeGuestCartOnLogin } from './cart-utils';
 
 export const authOptions: AuthOptions = {
   providers: [
@@ -63,16 +64,10 @@ export const authOptions: AuthOptions = {
       if (!user.email) return false;
 
       const cartToken = cookies().get('cartToken')?.value;
-      const guestCart = cartToken ? await prisma.cart.findFirst({ where: { token: cartToken } }) : null;
-
       const existingUser = await prisma.user.findUnique({ where: { email: user.email } });
 
       if (existingUser) {
-        const userCart = await prisma.cart.findFirst({ where: { userId: existingUser.id } });
-        if (!userCart && guestCart) {
-          await prisma.cart.update({ where: { id: guestCart.id }, data: { userId: existingUser.id } });
-        }
-
+        // Update provider if changed
         if (existingUser.provider !== account?.provider) {
           await prisma.user.update({
             where: { id: existingUser.id },
@@ -82,11 +77,15 @@ export const authOptions: AuthOptions = {
             },
           });
         }
+
+        // Merge guest cart with user cart
+        await mergeGuestCartOnLogin(existingUser.id, cartToken);
       } else {
+        // Create new user
         const newUser = await prisma.user.create({
           data: {
             email: user.email,
-            fullName: user.name || `User`,
+            fullName: user.name || 'User',
             password: '',
             verified: new Date(),
             provider: account?.provider,
@@ -94,9 +93,9 @@ export const authOptions: AuthOptions = {
             role: 'USER',
           },
         });
-        if (guestCart) {
-          await prisma.cart.update({ where: { id: guestCart.id }, data: { userId: newUser.id } });
-        }
+
+        // Merge guest cart with new user
+        await mergeGuestCartOnLogin(newUser.id, cartToken);
       }
 
       return true;

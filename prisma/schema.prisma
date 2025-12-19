@@ -19,11 +19,12 @@ model User {
     provider   String?
     providerId String?
 
-    cart             Cart?
-    orders           Order[]
-    kitchenOrders    Order[]           @relation("KitchenOrders")
-    courierOrders    Order[]           @relation("CourierOrders")
-    verificationCode VerificationCode?
+    cart                Cart?
+    orders              Order[]
+    kitchenOrders       Order[]              @relation("KitchenOrders")
+    courierOrders       Order[]              @relation("CourierOrders")
+    verificationCode    VerificationCode?
+    passwordResetTokens PasswordResetToken[]
 
     // Demo mode fields
     isDemo          Boolean   @default(false)
@@ -173,6 +174,11 @@ model Order {
     deliveryStartedAt        DateTime?
     deliveryEstimatedMinutes Int?
 
+    // Refund tracking
+    refundId       String?
+    refundedAmount Int?
+    refundedAt     DateTime?
+
     // Audit trail
     statusHistory Json?
     ipAddress     String?
@@ -194,9 +200,23 @@ model VerificationCode {
 
     code String
 
+    expiresAt DateTime
     createdAt DateTime @default(now())
 
     @@unique([userId, code])
+}
+
+model PasswordResetToken {
+    id Int @id @default(autoincrement())
+
+    user   User   @relation(fields: [userId], references: [id])
+    userId Int
+
+    token     String   @unique
+    expiresAt DateTime
+    used      Boolean  @default(false)
+
+    createdAt DateTime @default(now())
 }
 
 model Coupon {

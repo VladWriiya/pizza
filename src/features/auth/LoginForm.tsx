@@ -12,10 +12,11 @@ import { useRouter } from '@/i18n/navigation';
 
 interface Props {
   onSwitchToRegister: () => void;
+  onSwitchToForgotPassword: () => void;
   onClose: () => void;
 }
 
-export const LoginForm: React.FC<Props> = ({ onSwitchToRegister, onClose }) => {
+export const LoginForm: React.FC<Props> = ({ onSwitchToRegister, onSwitchToForgotPassword, onClose }) => {
   const router = useRouter();
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginFormSchema),
@@ -64,6 +65,14 @@ export const LoginForm: React.FC<Props> = ({ onSwitchToRegister, onClose }) => {
 
         <FormInput name="email" label="E-Mail" />
         <FormInput name="password" label="Password" type="password" />
+
+        <button
+          type="button"
+          onClick={onSwitchToForgotPassword}
+          className="pz-text-sm pz-text-primary hover:pz-underline pz-text-end pz--mt-2"
+        >
+          Forgot Password?
+        </button>
 
         <Button loading={form.formState.isSubmitting} type="submit" className="pz-h-12 pz-text-base">
           Sign In

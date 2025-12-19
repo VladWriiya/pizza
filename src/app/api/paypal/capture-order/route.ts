@@ -1,5 +1,3 @@
-'use server';
-
 import { NextRequest, NextResponse } from 'next/server';
 
 import { OrderStatus } from '@prisma/client';
@@ -8,7 +6,7 @@ import { sendEmail } from '@/lib/email';
 import { OrderSuccessTemplate } from '@/shared/email-templates/OrderSuccessTemplate';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { capturePayPalOrder } from '@//lib/paypal-sdk';
+import { capturePayPalOrder } from '@/lib/paypal-sdk';
 import { prisma } from '../../../../../prisma/prisma-client';
 
 export async function POST(req: NextRequest) {
@@ -123,22 +121,27 @@ export async function POST(req: NextRequest) {
       ipAddress,
     };
 
-    const order = await prisma.order.create({ data: orderData });
-    await prisma.cartItem.deleteMany({ where: { cartId: cart.id } });
-    await prisma.cart.update({ where: { id: cart.id }, data: { totalAmount: 0 } });
+    const cartId = cart.id;
+    const cartTokenValue = cart.token;
+
+    const order = await prisma.$transaction(async (tx) => {
+      const createdOrder = await tx.order.create({ data: orderData });
+      await tx.cartItem.deleteMany({ where: { cartId } });
+      await tx.cart.update({ where: { id: cartId }, data: { totalAmount: 0 } });
+      return createdOrder;
+    });
 
     try {
       await sendEmail(
         order.email,
-        `Your order #${order.id} has been confirmed! 🎉`,
+        `Your order #${order.id} has been confirmed!`,
         OrderSuccessTemplate({ orderId: order.id, items: itemsForOrder })
       );
     } catch (emailError) {
       console.error('Failed to send confirmation email, but order was processed:', emailError);
     }
 
-    // Return orderId and token for tracking page
-    return NextResponse.json({ success: true, orderId: order.id, token: cart.token });
+    return NextResponse.json({ success: true, orderId: order.id, token: cartTokenValue });
   } catch (error) {
     console.error('[PAYPAL_CAPTURE_ORDER] CRITICAL ERROR:', error);
     return NextResponse.json({ error: 'Failed to capture order' }, { status: 500 });

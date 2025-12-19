@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic';
 
-import { AccessibilityToolbar } from '@/widgets/AccessibilityToolbar';
+import { AccessibilityToolbar } from '@/widgets/accessibility';
 import { Header } from '@/widgets/header/header';
 import { Footer } from '@/widgets/Footer';
 import { EmergencyBanner } from '@/widgets/EmergencyBanner';

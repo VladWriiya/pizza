@@ -31,3 +31,39 @@ export function getPriceDisplay(price: number, discountPercent: number | null | 
     discountPercent: discountPercent || 0,
   };
 }
+
+/**
+ * Safely parse JSON with type validation
+ * Returns fallback value if parsing fails or result is not of expected type
+ */
+export function safeJsonParse<T>(
+  value: unknown,
+  fallback: T,
+  validator?: (parsed: unknown) => parsed is T
+): T {
+  try {
+    if (typeof value !== 'string') {
+      if (validator && validator(value)) {
+        return value;
+      }
+      return fallback;
+    }
+
+    const parsed = JSON.parse(value);
+
+    if (validator) {
+      return validator(parsed) ? parsed : fallback;
+    }
+
+    return parsed as T;
+  } catch {
+    return fallback;
+  }
+}
+
+/**
+ * Type guard for arrays
+ */
+export function isArray(value: unknown): value is unknown[] {
+  return Array.isArray(value);
+}

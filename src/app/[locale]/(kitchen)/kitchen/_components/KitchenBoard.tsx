@@ -1,7 +1,7 @@
 'use client';
 
 import { Order } from '@prisma/client';
-import { KitchenOrderCard } from './KitchenOrderCard';
+import { KitchenOrderCard } from './order-card';
 
 interface KitchenBoardProps {
   newOrders: Order[];

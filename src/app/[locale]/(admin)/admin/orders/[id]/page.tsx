@@ -6,6 +6,7 @@ import { OrderItemList, OrderItemData } from '@/shared/ui';
 import { UpdateStatusForm } from './_components/UpdateStatusForm';
 import { LargeOrderApprovalPanel } from './_components/LargeOrderApprovalPanel';
 import { NoCourierPanel } from './_components/NoCourierPanel';
+import { RefundPanel } from './_components/RefundPanel';
 import { prisma } from '../../../../../../../prisma/prisma-client';
 
 
@@ -86,6 +87,15 @@ export default async function OrderDetailsPage({ params }: OrderDetailsPageProps
               </div>
             </div>
           </div>
+
+          <RefundPanel
+            orderId={order.id}
+            totalAmount={order.totalAmount}
+            refundedAmount={order.refundedAmount}
+            paymentId={order.paymentId}
+            isDemo={order.isDemo}
+            status={order.status}
+          />
         </div>
       </div>
     </div>

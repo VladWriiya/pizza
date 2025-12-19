@@ -77,3 +77,69 @@ export const updateCartTotals = async (token: string) => {
 
 // Export for reuse in cart actions
 export { cartItemsInclude };
+
+/**
+ * Merge guest cart with user cart on login/register
+ *
+ * Scenario:
+ * 1. Guest adds items to cart (stored with token cookie)
+ * 2. Guest logs in or registers
+ * 3. We need to preserve their cart!
+ *
+ * Cases:
+ * - User has NO cart → assign guest cart to user
+ * - User HAS cart → move guest items to user cart, delete guest cart
+ */
+export async function mergeGuestCartOnLogin(userId: number, cartToken?: string): Promise<void> {
+  if (!cartToken) return;
+
+  const guestCart = await prisma.cart.findFirst({
+    where: { token: cartToken },
+    include: { items: true },
+  });
+
+  if (!guestCart) return;
+
+  const userCart = await prisma.cart.findFirst({
+    where: { userId },
+  });
+
+  if (!userCart) {
+    // User has no cart — just assign guest cart to user
+    await prisma.cart.update({
+      where: { id: guestCart.id },
+      data: { userId },
+    });
+  } else {
+    // User already has cart — merge items
+    if (guestCart.items.length > 0) {
+      await prisma.cartItem.updateMany({
+        where: { cartId: guestCart.id },
+        data: { cartId: userCart.id },
+      });
+
+      // Recalculate user cart total
+      const updatedCart = await prisma.cart.findFirst({
+        where: { id: userCart.id },
+        include: { items: { include: { productItem: true, ingredients: true } } },
+      });
+
+      if (updatedCart) {
+        const newTotal = updatedCart.items.reduce((acc, item) => {
+          const ingredientsPrice = item.ingredients.reduce((sum, ing) => sum + ing.price, 0);
+          return acc + (item.productItem.price + ingredientsPrice) * item.quantity;
+        }, 0);
+
+        await prisma.cart.update({
+          where: { id: userCart.id },
+          data: { totalAmount: newTotal },
+        });
+      }
+    }
+
+    // Delete empty guest cart
+    await prisma.cart.delete({
+      where: { id: guestCart.id },
+    });
+  }
+}
