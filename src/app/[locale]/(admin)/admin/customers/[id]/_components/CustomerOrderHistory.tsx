@@ -22,7 +22,6 @@ const STATUS_COLORS: Record<string, string> = {
   READY: 'pz-bg-purple-100 pz-text-purple-800',
   DELIVERING: 'pz-bg-indigo-100 pz-text-indigo-800',
   DELIVERED: 'pz-bg-green-100 pz-text-green-800',
-  SUCCEEDED: 'pz-bg-green-100 pz-text-green-800',
   CANCELLED: 'pz-bg-red-100 pz-text-red-800',
 };
 

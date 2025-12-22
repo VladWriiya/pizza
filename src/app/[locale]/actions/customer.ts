@@ -159,7 +159,6 @@ export async function getCustomerAnalyticsAction(): Promise<CustomerAnalytics> {
   try {
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1);
 
     // Get all customers with their orders
     const users = await prisma.user.findMany({
@@ -175,7 +174,7 @@ export async function getCustomerAnalyticsAction(): Promise<CustomerAnalytics> {
         orders: {
           where: {
             isDemo: false,
-            status: { in: ['DELIVERED', 'SUCCEEDED'] },
+            status: 'DELIVERED',
           },
           select: {
             totalAmount: true,

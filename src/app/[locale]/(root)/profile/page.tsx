@@ -27,7 +27,6 @@ const statusConfig: Record<OrderStatus, { label: string; color: string; icon: Re
   READY: { label: 'Ready', color: 'pz-bg-purple-100 pz-text-purple-700', icon: <Package size={16} /> },
   DELIVERING: { label: 'On the way', color: 'pz-bg-indigo-100 pz-text-indigo-700', icon: <Truck size={16} /> },
   DELIVERED: { label: 'Delivered', color: 'pz-bg-green-100 pz-text-green-700', icon: <CheckCircle size={16} /> },
-  SUCCEEDED: { label: 'Completed', color: 'pz-bg-green-100 pz-text-green-700', icon: <CheckCircle size={16} /> },
   CANCELLED: { label: 'Cancelled', color: 'pz-bg-red-100 pz-text-red-700', icon: <XCircle size={16} /> },
 };
 
@@ -283,7 +282,7 @@ export default function ProfilePage() {
                             </Button>
                           </Link>
                         )}
-                        {['DELIVERED', 'SUCCEEDED', 'CANCELLED'].includes(order.status) && (
+                        {['DELIVERED', 'CANCELLED'].includes(order.status) && (
                           <Button
                             variant="outline"
                             className="pz-flex-1"

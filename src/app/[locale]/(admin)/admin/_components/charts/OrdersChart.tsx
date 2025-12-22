@@ -10,7 +10,7 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { ChartCard } from './ChartCard';
-import type { DailyOrderData } from '@/app/[locale]/actions/dashboard';
+import type { DailyOrderData } from '@/app/[locale]/actions/analytics.actions';
 
 interface OrdersChartProps {
   data: DailyOrderData[];

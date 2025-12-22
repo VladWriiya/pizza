@@ -34,6 +34,13 @@ export const authOptions: AuthOptions = {
         if (!isPasswordValid) {
           return null;
         }
+
+        // Merge guest cart with user cart on credentials login
+        const cartToken = cookies().get('cartToken')?.value;
+        if (cartToken) {
+          await mergeGuestCartOnLogin(user.id, cartToken);
+        }
+
         return {
           id: String(user.id),
           email: user.email,

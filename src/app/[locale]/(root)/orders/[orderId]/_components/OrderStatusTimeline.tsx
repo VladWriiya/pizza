@@ -24,31 +24,31 @@ const steps: TimelineStep[] = [
     id: 'confirmed',
     label: 'Order Confirmed',
     icon: <Check size={20} />,
-    statuses: ['CONFIRMED', 'PREPARING', 'READY', 'DELIVERING', 'DELIVERED', 'SUCCEEDED'],
+    statuses: ['CONFIRMED', 'PREPARING', 'READY', 'DELIVERING', 'DELIVERED'],
   },
   {
     id: 'preparing',
     label: 'Preparing',
     icon: <ChefHat size={20} />,
-    statuses: ['PREPARING', 'READY', 'DELIVERING', 'DELIVERED', 'SUCCEEDED'],
+    statuses: ['PREPARING', 'READY', 'DELIVERING', 'DELIVERED'],
   },
   {
     id: 'ready',
     label: 'Ready',
     icon: <Package size={20} />,
-    statuses: ['READY', 'DELIVERING', 'DELIVERED', 'SUCCEEDED'],
+    statuses: ['READY', 'DELIVERING', 'DELIVERED'],
   },
   {
     id: 'delivering',
     label: 'On the Way',
     icon: <Truck size={20} />,
-    statuses: ['DELIVERING', 'DELIVERED', 'SUCCEEDED'],
+    statuses: ['DELIVERING', 'DELIVERED'],
   },
   {
     id: 'delivered',
     label: 'Delivered',
     icon: <PartyPopper size={20} />,
-    statuses: ['DELIVERED', 'SUCCEEDED'],
+    statuses: ['DELIVERED'],
   },
 ];
 

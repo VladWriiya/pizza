@@ -3,7 +3,7 @@
 import { hashSync } from 'bcrypt';
 import { Prisma } from '@prisma/client';
 import { prisma } from '../../../../prisma/prisma-client';
-import { sendVerificationEmailAction } from './email-verification';
+// import { sendVerificationEmailAction } from './email-verification';
 
 export async function registerUser(body: Omit<Prisma.UserCreateInput, 'verified'>) {
   const existingUser = await prisma.user.findUnique({

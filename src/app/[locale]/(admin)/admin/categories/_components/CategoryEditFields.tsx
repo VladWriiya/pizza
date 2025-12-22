@@ -1,23 +1,13 @@
 'use client';
 
-import { Input } from '@/shared/ui/input';
+import { FormInput } from '@/shared/form/FormInput';
 import React from 'react';
 
-interface Props {
-  isEditing?: boolean;
-}
-
-export const CategoryEditFields = ({ }: Props) => {
+export const CategoryEditFields = () => {
   return (
     <>
-      <div>
-        <label className="pz-block pz-text-sm pz-font-medium pz-mb-1">English Name</label>
-        <Input name="name_en" placeholder="Pizza" required />
-      </div>
-      <div>
-        <label className="pz-block pz-text-sm pz-font-medium pz-mb-1">Hebrew Name</label>
-        <Input name="name_he" placeholder="פיצה" required dir="rtl" />
-      </div>
+      <FormInput name="name_en" label="English Name" placeholder="Pizza" required />
+      <FormInput name="name_he" label="Hebrew Name" placeholder="פיצה" required dir="rtl" />
     </>
   );
 };

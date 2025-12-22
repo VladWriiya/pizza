@@ -11,7 +11,7 @@ import {
   Cell,
 } from 'recharts';
 import { ChartCard } from './ChartCard';
-import type { PeakHourData } from '@/app/[locale]/actions/dashboard';
+import type { PeakHourData } from '@/app/[locale]/actions/analytics.actions';
 
 interface PeakHoursChartProps {
   data: PeakHourData[];

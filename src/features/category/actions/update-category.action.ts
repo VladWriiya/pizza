@@ -26,16 +26,19 @@ export async function updateCategoryAction(id: number, data: FormData) {
   const translations = buildTranslations(validation.data.name_en, validation.data.name_he);
 
   try {
-    await prisma.category.update({
+    const updated = await prisma.category.update({
       where: { id },
       data: {
         name: validation.data.name_en,
         translations,
       },
     });
+    console.log('Category updated:', updated);
     revalidatePath('/admin/categories');
+    revalidatePath('/');
     return { success: true };
-  } catch {
+  } catch (error) {
+    console.error('Failed to update category:', error);
     return { success: false, error: 'Failed to update category.' };
   }
 }

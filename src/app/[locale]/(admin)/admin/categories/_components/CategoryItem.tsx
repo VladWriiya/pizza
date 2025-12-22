@@ -4,7 +4,7 @@ import { Category } from '@prisma/client';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical, Pencil, Check, X } from 'lucide-react';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/shared/ui/button';
 import { DeleteCategoryButton } from './DeleteCategoryButton';
 import { CategoryEditFields } from './CategoryEditFields';
@@ -16,12 +16,25 @@ interface Props {
   onUpdate: () => void;
 }
 
+type CategoryTranslations = { en?: { name?: string }; he?: { name?: string } } | null;
+
 export const CategoryItem: React.FC<Props> = ({ category, onUpdate }) => {
   const [isEditing, setIsEditing] = useState(false);
   const { form, onSubmit } = useCategoryForm(category, () => {
     setIsEditing(false);
     onUpdate();
   });
+
+  // Reset form with current category data when entering edit mode
+  useEffect(() => {
+    if (isEditing) {
+      const translations = category.translations as CategoryTranslations;
+      form.reset({
+        name_en: translations?.en?.name || '',
+        name_he: translations?.he?.name || '',
+      });
+    }
+  }, [isEditing, category, form]);
 
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: category.id });
 

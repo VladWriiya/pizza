@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { Gift, TrendingUp, TrendingDown, Award, Loader2 } from 'lucide-react';
-import { getLoyaltyInfoAction, type LoyaltyInfo, LOYALTY_CONFIG } from '@/app/[locale]/actions/loyalty';
+import { getLoyaltyInfoAction, type LoyaltyInfo } from '@/app/[locale]/actions/loyalty';
+import { LOYALTY_CONFIG } from '@/lib/loyalty-config';
 import { cn } from '@/lib/utils';
 
 interface LoyaltyCardProps {

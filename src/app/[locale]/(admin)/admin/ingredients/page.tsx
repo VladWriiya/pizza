@@ -16,7 +16,7 @@ import { EditIngredientDialog } from './_components/EditIngredientDialog';
 
 export default async function IngredientsPage() {
   const ingredients = await prisma.ingredient.findMany({
-    orderBy: { createdAt: 'desc' },
+    orderBy: { name: 'asc' },
   });
 
   return (

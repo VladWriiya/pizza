@@ -8,7 +8,8 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { capturePayPalOrder } from '@/lib/paypal-sdk';
 import { prisma } from '../../../../../prisma/prisma-client';
-import { awardOrderPointsAction } from '@/app/[locale]/actions/loyalty';
+import { awardOrderPointsAction, deductPointsForOrderAction } from '@/app/[locale]/actions/loyalty';
+import { LOYALTY_CONFIG } from '@/lib/loyalty-config';
 
 export async function POST(req: NextRequest) {
   try {
@@ -17,12 +18,23 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
     }
 
-    const { orderId, formData, cartToken } = body as { orderId: string; formData: OrderFormValues; cartToken?: string };
+    const { orderId, formData, cartToken, appliedPoints = 0 } = body as {
+      orderId: string;
+      formData: OrderFormValues;
+      cartToken?: string;
+      appliedPoints?: number;
+    };
     const session = await getServerSession(authOptions);
 
     const captureResult = await capturePayPalOrder(orderId);
 
     if (!captureResult.success || captureResult.data?.status !== 'COMPLETED') {
+      console.error('[PAYPAL_CAPTURE] Failed:', {
+        success: captureResult.success,
+        error: captureResult.error,
+        status: captureResult.data?.status,
+        data: captureResult.data,
+      });
       return NextResponse.json({ error: 'Payment could not be completed.' }, { status: 400 });
     }
 
@@ -36,16 +48,18 @@ export async function POST(req: NextRequest) {
       },
     };
 
-    if (session?.user?.id) {
+    // Priority: cartToken first (from cookie), then userId
+    // This ensures we use the cart the user was actually shopping with
+    if (cartToken) {
       cart = await prisma.cart.findFirst({
-        where: { userId: Number(session.user.id) },
+        where: { token: cartToken },
         include: includeCartItems,
       });
     }
 
-    if (!cart && cartToken) {
+    if (!cart && session?.user?.id) {
       cart = await prisma.cart.findFirst({
-        where: { token: cartToken },
+        where: { userId: Number(session.user.id) },
         include: includeCartItems,
       });
     }
@@ -109,6 +123,10 @@ export async function POST(req: NextRequest) {
       { status: 'CONFIRMED', timestamp: now.toISOString() },
     ];
 
+    // Calculate points discount
+    const pointsDiscount = appliedPoints * LOYALTY_CONFIG.ILS_PER_POINT;
+    const finalTotalAmount = Math.max(0, cart.totalAmount - pointsDiscount);
+
     const orderData = {
       userId,
       token: cart.token,
@@ -118,9 +136,10 @@ export async function POST(req: NextRequest) {
       address: fullAddress,
       comment: formData.comment,
       scheduledFor: formData.scheduledFor ? new Date(formData.scheduledFor) : null,
-      totalAmount: cart.totalAmount,
+      totalAmount: finalTotalAmount,
       status: OrderStatus.CONFIRMED, // Start as CONFIRMED, kitchen will process
-      paymentId: captureResult.data.id,
+      // Store capture ID (not order ID) - required for refunds
+      paymentId: captureResult.data.purchase_units?.[0]?.payments?.captures?.[0]?.id || captureResult.data.id,
       items: JSON.stringify(itemsForOrder),
       statusHistory: JSON.stringify(statusHistory),
       ipAddress,
@@ -136,12 +155,17 @@ export async function POST(req: NextRequest) {
       return createdOrder;
     });
 
-    // Award loyalty points for authenticated users
+    // Handle loyalty points for authenticated users
     if (userId) {
       try {
-        await awardOrderPointsAction(userId, order.id, cart.totalAmount);
+        // First deduct points if any were used
+        if (appliedPoints > 0) {
+          await deductPointsForOrderAction(userId, order.id, appliedPoints);
+        }
+        // Then award new points based on final amount paid
+        await awardOrderPointsAction(userId, order.id, finalTotalAmount);
       } catch (loyaltyError) {
-        console.error('Failed to award loyalty points, but order was processed:', loyaltyError);
+        console.error('Failed to process loyalty points, but order was processed:', loyaltyError);
       }
     }
 

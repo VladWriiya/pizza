@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { WhiteBlock } from '@/shared/WhiteBlock';
-import { LucideIcon, Package, Truck, Ticket } from 'lucide-react';
+import { LucideIcon, Package, Truck, Ticket, Gift } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
 import { ApplyCouponForm } from '@/features/cart/ApplyCouponForm';
@@ -32,6 +32,8 @@ export interface PriceDetails {
   delivery: number;
   discount?: number;
   couponCode?: string;
+  pointsDiscount?: number;
+  appliedPoints?: number;
 }
 
 interface Props {
@@ -59,6 +61,15 @@ export const CheckoutSidebar: React.FC<Props> = ({ priceDetails, className, chil
                 value={`- ${priceDetails.discount.toFixed(2)} ILS`}
                 icon={Ticket}
                 className="pz-text-green-600"
+            />
+        )}
+
+        {priceDetails.pointsDiscount && priceDetails.appliedPoints && (
+            <CheckoutDetailRow
+                title={`${priceDetails.appliedPoints} pts`}
+                value={`- ${priceDetails.pointsDiscount.toFixed(2)} ILS`}
+                icon={Gift}
+                className="pz-text-purple-600"
             />
         )}
 

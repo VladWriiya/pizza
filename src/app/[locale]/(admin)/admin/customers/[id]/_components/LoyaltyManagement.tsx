@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Gift, Plus, Minus, History, Loader2 } from 'lucide-react';
 import { Button } from '@/shared/ui/button';
 import { Input } from '@/shared/ui/input';
-import { adminAdjustPointsAction, getAdminLoyaltyHistoryAction, LOYALTY_CONFIG } from '@/app/[locale]/actions/loyalty';
+import { adminAdjustPointsAction, getAdminLoyaltyHistoryAction } from '@/app/[locale]/actions/loyalty';
+import { LOYALTY_CONFIG } from '@/lib/loyalty-config';
 import { LoyaltyTransactionType } from '@prisma/client';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';

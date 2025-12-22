@@ -46,13 +46,21 @@ export async function createPayPalOrder(amount: number) {
 
 export async function capturePayPalOrder(orderId: string) {
   try {
+    console.log('[PAYPAL_SDK] Capturing order:', orderId);
     const { body } = await ordersController.captureOrder({
       id: orderId,
     });
-    return { success: true, data: JSON.parse(body as string) };
+    const parsed = JSON.parse(body as string);
+    console.log('[PAYPAL_SDK] Capture response:', parsed);
+    return { success: true, data: parsed };
   } catch (error) {
-    console.error('Failed to capture PayPal order:', error);
+    console.error('[PAYPAL_SDK] Failed to capture PayPal order:', error);
     if (error instanceof ApiError) {
+      console.error('[PAYPAL_SDK] ApiError details:', {
+        message: error.message,
+        statusCode: error.statusCode,
+        body: error.body,
+      });
       return { success: false, error: error.message };
     }
     return { success: false, error: 'An unknown error occurred.' };

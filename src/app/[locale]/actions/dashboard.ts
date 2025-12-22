@@ -204,13 +204,3 @@ export async function getOrdersWaitingForCourierAction(): Promise<WaitingForCour
     return [];
   }
 }
-
-// Re-export analytics actions for convenience
-export {
-  getOrdersPerDayAction,
-  getPopularProductsAction,
-  getPeakHoursAction,
-  type DailyOrderData,
-  type PopularProductData,
-  type PeakHourData,
-} from './analytics.actions';

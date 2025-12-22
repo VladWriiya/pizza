@@ -1,5 +1,3 @@
-'use server';
-
 import { OrderStatus, Prisma } from '@prisma/client';
 
 /**
@@ -33,7 +31,6 @@ export const validTransitions: Record<OrderStatus, OrderStatus[]> = {
   READY: ['DELIVERING', 'PREPARING', 'CANCELLED'], // PREPARING for remake
   DELIVERING: ['DELIVERED', 'CANCELLED'],
   DELIVERED: [], // Terminal state
-  SUCCEEDED: ['DELIVERED'], // Legacy - can migrate to DELIVERED
   CANCELLED: [], // Terminal state
 };
 

@@ -11,7 +11,7 @@ import {
 } from '@/shared/ui/dialog';
 import { FormInput } from '@/shared/form/FormInput';
 import { Ingredient } from '@prisma/client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FormProvider } from 'react-hook-form';
 import { useIngredientForm } from '../_hooks/use-ingredient-form';
 
@@ -23,6 +23,19 @@ interface Props {
 export const EditIngredientDialog: React.FC<Props> = ({ ingredient }) => {
   const [open, setOpen] = useState(false);
   const { form, handleFormSubmit } = useIngredientForm(ingredient, () => setOpen(false));
+
+  // Reset form with current ingredient data when dialog opens
+  useEffect(() => {
+    if (open) {
+      const translations = ingredient.translations as { en?: { name?: string }; he?: { name?: string } } | undefined;
+      form.reset({
+        name_en: translations?.en?.name || '',
+        name_he: translations?.he?.name || '',
+        price: ingredient.price,
+        imageUrl: ingredient.imageUrl || '',
+      });
+    }
+  }, [open, ingredient, form]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

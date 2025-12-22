@@ -4,6 +4,7 @@ import { AccessibilityToolbar } from '@/widgets/accessibility';
 import { Header } from '@/widgets/header/header';
 import { Footer } from '@/widgets/Footer';
 import { EmergencyBanner } from '@/widgets/EmergencyBanner';
+import { ClosedBanner } from '@/widgets/ClosedBanner';
 import { HighLoadBanner } from '@/widgets/HighLoadBanner';
 
 export default function RootPagesLayout({
@@ -16,6 +17,7 @@ export default function RootPagesLayout({
   return (
     <main className="pz-min-h-screen pz-flex pz-flex-col">
       <EmergencyBanner />
+      <ClosedBanner />
       <HighLoadBanner />
       <Header />
       <div className="pz-flex-1">

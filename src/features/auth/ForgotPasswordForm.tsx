@@ -34,7 +34,7 @@ export const ForgotPasswordForm: React.FC<Props> = ({ onBack }) => {
       if (result.success) {
         setSubmitted(true);
       }
-    } catch (error) {
+    } catch {
       toast.error('Something went wrong. Please try again.');
     }
   };

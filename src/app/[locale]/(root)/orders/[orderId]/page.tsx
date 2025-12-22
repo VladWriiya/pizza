@@ -38,7 +38,6 @@ export default async function OrderTrackingPage({ params, searchParams }: PagePr
     READY: 'Your order is ready and waiting for pickup!',
     DELIVERING: 'Your order is on the way! 🚗',
     DELIVERED: 'Order delivered! Enjoy your meal! 🎉',
-    SUCCEEDED: 'Order completed successfully! 🎉',
     CANCELLED: 'Order was cancelled.',
   };
 

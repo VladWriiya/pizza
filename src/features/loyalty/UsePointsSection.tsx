@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { Gift, Check } from 'lucide-react';
-import { getLoyaltyInfoAction, LOYALTY_CONFIG, type LoyaltyInfo } from '@/app/[locale]/actions/loyalty';
+import { getLoyaltyInfoAction, type LoyaltyInfo } from '@/app/[locale]/actions/loyalty';
+import { LOYALTY_CONFIG } from '@/lib/loyalty-config';
 import { Button } from '@/shared/ui/button';
 import { Slider } from '@/shared/ui/slider';
 import { cn } from '@/lib/utils';

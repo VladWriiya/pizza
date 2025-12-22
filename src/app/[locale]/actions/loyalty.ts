@@ -5,11 +5,12 @@ import { authOptions } from '@/lib/auth';
 import { revalidatePath } from 'next/cache';
 import { prisma } from '../../../../prisma/prisma-client';
 import { LoyaltyTransactionType } from '@prisma/client';
+import { LOYALTY_CONFIG } from '@/lib/loyalty-config';
 
-// Points configuration
-const POINTS_PER_ILS = 1; // 1 point per 1 ILS spent
-const ILS_PER_POINT = 0.1; // 1 point = 0.1 ILS discount (10 points = 1 ILS)
-const MIN_POINTS_TO_REDEEM = 50; // Minimum points to redeem
+// Points configuration (from config)
+const POINTS_PER_ILS = LOYALTY_CONFIG.POINTS_PER_ILS;
+const ILS_PER_POINT = LOYALTY_CONFIG.ILS_PER_POINT;
+const MIN_POINTS_TO_REDEEM = LOYALTY_CONFIG.MIN_POINTS_TO_REDEEM;
 
 export interface LoyaltyInfo {
   points: number;
@@ -77,14 +78,14 @@ export async function getLoyaltyInfoAction(): Promise<{ success: boolean; data?:
 /**
  * Calculate how many points will be earned for an order
  */
-export function calculatePointsForOrder(orderTotal: number): number {
+function calculatePointsForOrder(orderTotal: number): number {
   return Math.floor(orderTotal * POINTS_PER_ILS);
 }
 
 /**
  * Calculate discount value for given points
  */
-export function calculatePointsDiscount(points: number): number {
+function calculatePointsDiscount(points: number): number {
   return points * ILS_PER_POINT;
 }
 
@@ -278,9 +279,4 @@ export async function getAdminLoyaltyHistoryAction(userId: number) {
   }
 }
 
-// Export constants for use in other files
-export const LOYALTY_CONFIG = {
-  POINTS_PER_ILS,
-  ILS_PER_POINT,
-  MIN_POINTS_TO_REDEEM,
-};
+// Constants are exported from @/lib/loyalty-config

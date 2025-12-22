@@ -10,6 +10,7 @@ import toast from 'react-hot-toast';
 import { useCart } from '@/features/cart/hooks/use-cart';
 import { PriceDetails } from '@/entities/order/CheckoutSidebar';
 import { calculateFinalOrderAmountAction } from '@/app/[locale]/actions/order';
+import { LOYALTY_CONFIG } from '@/lib/loyalty-config';
 
 interface Props {
   cart: CartWithRelations;
@@ -21,6 +22,8 @@ export const useOrderForm = ({ cart, initialPriceDetails }: Props) => {
   const { items: cartItems, updateItemQuantity, removeCartItem } = useCart();
 
   const [priceDetails, setPriceDetails] = useState<PriceDetails>(initialPriceDetails);
+  const [appliedPoints, setAppliedPoints] = useState(0);
+  const [pointsDiscount, setPointsDiscount] = useState(0);
 
   const form = useForm<OrderFormValues>({
     resolver: zodResolver(orderFormSchema),
@@ -77,12 +80,32 @@ export const useOrderForm = ({ cart, initialPriceDetails }: Props) => {
       toast.error('Failed to remove item.');
     }
   };
-  
+
+  const handlePointsApply = (points: number, discount: number) => {
+    setAppliedPoints(points);
+    setPointsDiscount(discount);
+    // Update price details with points discount
+    setPriceDetails(prev => ({
+      ...prev,
+      pointsDiscount: discount,
+      appliedPoints: points,
+      finalAmount: Math.max(0, prev.subtotal + prev.delivery - (prev.discount || 0) - discount),
+    }));
+  };
+
+  // Max discount = subtotal (can't reduce below delivery cost)
+  const maxPointsDiscount = priceDetails.subtotal - (priceDetails.discount || 0);
+
   return {
     form,
     cartItems,
     priceDetails,
     handleUpdateQuantity,
     handleRemoveItem,
+    appliedPoints,
+    pointsDiscount,
+    handlePointsApply,
+    maxPointsDiscount,
+    isAuthenticated: !!session?.user,
   };
 };

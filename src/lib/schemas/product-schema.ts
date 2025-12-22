@@ -1,6 +1,22 @@
 import { z } from 'zod';
 import { AvailabilityStatus } from '@prisma/client';
 
+// Custom validation for image URLs - accepts both full URLs and local paths
+const imageUrlSchema = z.string().refine(
+  (val) => {
+    // Allow local paths starting with /
+    if (val.startsWith('/')) return true;
+    // Allow full URLs
+    try {
+      new URL(val);
+      return true;
+    } catch {
+      return false;
+    }
+  },
+  { message: 'Please enter a valid URL or local path (e.g., /images/product.png)' }
+);
+
 export const productItemSchema = z.object({
   price: z.number().positive({ message: 'Price must be a positive number.' }),
   size: z.number().optional().nullable(),
@@ -8,7 +24,7 @@ export const productItemSchema = z.object({
 });
 
 const baseProductSchema = z.object({
-  imageUrl: z.string().url({ message: 'Please enter a valid URL.' }),
+  imageUrl: imageUrlSchema,
   availabilityStatus: z.nativeEnum(AvailabilityStatus),
   name_en: z.string().min(2, { message: 'English name is required.' }),
   name_he: z.string().min(2, { message: 'Hebrew name is required.' }),

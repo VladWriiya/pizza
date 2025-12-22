@@ -6,6 +6,7 @@ import { CheckoutSidebar, PriceDetails } from '@/entities/order/CheckoutSidebar'
 import { ShippingForm } from '@/features/fill-shipping-form/ShippingForm';
 import { OrderItemsList } from '@/entities/order/OrderItemsList';
 import { PayPalButtonsWrapper } from '@/features/place-order/PayPalButtonsWrapper';
+import { UsePointsSection } from '@/features/loyalty/UsePointsSection';
 import { useTranslations } from 'next-intl';
 import { CartWithRelations } from '@/lib/prisma-types';
 import { useOrderForm } from './useOrderForm';
@@ -23,8 +24,12 @@ export const OrderForm: React.FC<Props> = (props) => {
     priceDetails,
     handleUpdateQuantity,
     handleRemoveItem,
+    appliedPoints,
+    handlePointsApply,
+    maxPointsDiscount,
+    isAuthenticated,
   } = useOrderForm(props);
-  
+
   const isFormValid = form.formState.isValid;
   const getFormData = () => form.getValues();
 
@@ -40,11 +45,24 @@ export const OrderForm: React.FC<Props> = (props) => {
             onClickRemove={handleRemoveItem}
             title={t('yourCart')}
           />
+
+          {isAuthenticated && (
+            <UsePointsSection
+              onPointsApply={handlePointsApply}
+              appliedPoints={appliedPoints}
+              maxDiscount={maxPointsDiscount}
+            />
+          )}
+
           <ShippingForm />
         </div>
         <div className="lg:pz-col-span-1">
           <CheckoutSidebar priceDetails={priceDetails}>
-            <PayPalButtonsWrapper getFormData={getFormData} isFormValid={isFormValid} />
+            <PayPalButtonsWrapper
+              getFormData={getFormData}
+              isFormValid={isFormValid}
+              appliedPoints={appliedPoints}
+            />
           </CheckoutSidebar>
         </div>
       </div>

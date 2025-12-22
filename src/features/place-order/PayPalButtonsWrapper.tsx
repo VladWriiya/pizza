@@ -12,6 +12,7 @@ import { useCartStore } from '@/store/cart.store';
 interface Props {
   getFormData: () => OrderFormValues;
   isFormValid: boolean;
+  appliedPoints?: number;
 }
 
 const initialOptions = {
@@ -20,7 +21,7 @@ const initialOptions = {
   intent: 'capture',
 };
 
-export const PayPalButtonsWrapper: React.FC<Props> = ({ getFormData, isFormValid }) => {
+export const PayPalButtonsWrapper: React.FC<Props> = ({ getFormData, isFormValid, appliedPoints = 0 }) => {
   const router = useRouter();
   const clearCart = useCartStore((state) => state.clearCart);
 
@@ -28,6 +29,8 @@ export const PayPalButtonsWrapper: React.FC<Props> = ({ getFormData, isFormValid
     try {
       const response = await fetch('/api/paypal/create-order', {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ appliedPoints }),
       });
       const orderData = await response.json();
       if (orderData.orderId) {
@@ -54,6 +57,7 @@ export const PayPalButtonsWrapper: React.FC<Props> = ({ getFormData, isFormValid
           orderId: data.orderID,
           formData: formData,
           cartToken: cartToken,
+          appliedPoints: appliedPoints,
         }),
       });
 

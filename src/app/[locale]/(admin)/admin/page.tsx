@@ -3,10 +3,12 @@ import {
   getDashboardStatsAction,
   getDashboardAlertsAction,
   getOrdersWaitingForCourierAction,
+} from '../../actions/dashboard';
+import {
   getOrdersPerDayAction,
   getPopularProductsAction,
   getPeakHoursAction,
-} from '../../actions/dashboard';
+} from '../../actions/analytics.actions';
 import { Heading } from '@/shared/Heading';
 import { StatCard } from './_components/StatCard';
 import { RecentOrders } from './_components/RecentOrders';

@@ -31,7 +31,7 @@ export function CancelOrderPanel({ orderId, status }: CancelOrderPanelProps) {
   const [customReason, setCustomReason] = useState('');
 
   // Can't cancel delivered or already cancelled orders
-  const canCancel = !['DELIVERED', 'CANCELLED', 'SUCCEEDED'].includes(status);
+  const canCancel = !['DELIVERED', 'CANCELLED'].includes(status);
 
   if (!canCancel) {
     return null;

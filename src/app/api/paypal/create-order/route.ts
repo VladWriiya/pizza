@@ -6,6 +6,7 @@ import { calculateFinalOrderAmountAction } from '@/app/[locale]/actions/order';
 import { isRestaurantOpenAction, checkOrderRateLimitAction } from '@/features/system-settings';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { LOYALTY_CONFIG } from '@/lib/loyalty-config';
 
 export async function POST(req: NextRequest) {
   try {
@@ -40,13 +41,26 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Cart not found' }, { status: 404 });
     }
 
+    // Get applied points from request body
+    let appliedPoints = 0;
+    try {
+      const body = await req.json();
+      appliedPoints = body?.appliedPoints || 0;
+    } catch {
+      // No body or invalid JSON, continue with 0 points
+    }
+
     const { finalAmount } = await calculateFinalOrderAmountAction(cartToken);
 
     if (finalAmount === 0) {
       return NextResponse.json({ error: 'Cart is empty' }, { status: 400 });
     }
 
-    const result = await createPayPalOrder(finalAmount);
+    // Calculate points discount
+    const pointsDiscount = appliedPoints * LOYALTY_CONFIG.ILS_PER_POINT;
+    const amountAfterPoints = Math.max(0, finalAmount - pointsDiscount);
+
+    const result = await createPayPalOrder(amountAfterPoints);
 
     if (result.success) {
       return NextResponse.json({ orderId: result.orderId });
