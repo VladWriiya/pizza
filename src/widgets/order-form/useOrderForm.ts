@@ -10,7 +10,6 @@ import toast from 'react-hot-toast';
 import { useCart } from '@/features/cart/hooks/use-cart';
 import { PriceDetails } from '@/entities/order/CheckoutSidebar';
 import { calculateFinalOrderAmountAction } from '@/app/[locale]/actions/order';
-import { LOYALTY_CONFIG } from '@/lib/loyalty-config';
 
 interface Props {
   cart: CartWithRelations;
