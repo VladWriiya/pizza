@@ -38,7 +38,11 @@ export const authOptions: AuthOptions = {
         // Merge guest cart with user cart on credentials login
         const cartToken = cookies().get('cartToken')?.value;
         if (cartToken) {
-          await mergeGuestCartOnLogin(user.id, cartToken);
+          const newToken = await mergeGuestCartOnLogin(user.id, cartToken);
+          // Update cookie if token changed (user had existing cart)
+          if (newToken && newToken !== cartToken) {
+            cookies().set('cartToken', newToken);
+          }
         }
 
         return {
@@ -79,7 +83,10 @@ export const authOptions: AuthOptions = {
         }
 
         // Merge guest cart with user cart
-        await mergeGuestCartOnLogin(existingUser.id, cartToken);
+        const newToken = await mergeGuestCartOnLogin(existingUser.id, cartToken);
+        if (newToken && newToken !== cartToken) {
+          cookies().set('cartToken', newToken);
+        }
       } else {
         // Create new user
         const newUser = await prisma.user.create({
@@ -95,7 +102,10 @@ export const authOptions: AuthOptions = {
         });
 
         // Merge guest cart with new user
-        await mergeGuestCartOnLogin(newUser.id, cartToken);
+        const newToken = await mergeGuestCartOnLogin(newUser.id, cartToken);
+        if (newToken && newToken !== cartToken) {
+          cookies().set('cartToken', newToken);
+        }
       }
 
       return true;

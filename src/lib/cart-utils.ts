@@ -89,16 +89,24 @@ export { cartItemsInclude };
  * Cases:
  * - User has NO cart → assign guest cart to user
  * - User HAS cart → move guest items to user cart, delete guest cart
+ *
+ * Returns the token of the cart that should be used (for cookie update)
  */
-export async function mergeGuestCartOnLogin(userId: number, cartToken?: string): Promise<void> {
-  if (!cartToken) return;
+export async function mergeGuestCartOnLogin(userId: number, cartToken?: string): Promise<string | null> {
+  if (!cartToken) return null;
 
+  // Check if guest cart is already assigned to this user (already merged)
   const guestCart = await prisma.cart.findFirst({
     where: { token: cartToken },
     include: { items: true },
   });
 
-  if (!guestCart) return;
+  if (!guestCart) return null;
+
+  // If guest cart already belongs to this user, no merge needed
+  if (guestCart.userId === userId) {
+    return cartToken;
+  }
 
   const userCart = await prisma.cart.findFirst({
     where: { userId },
@@ -110,6 +118,7 @@ export async function mergeGuestCartOnLogin(userId: number, cartToken?: string):
       where: { id: guestCart.id },
       data: { userId },
     });
+    return cartToken; // Keep same token
   } else {
     // User already has cart — merge items
     if (guestCart.items.length > 0) {
@@ -141,5 +150,8 @@ export async function mergeGuestCartOnLogin(userId: number, cartToken?: string):
     await prisma.cart.delete({
       where: { id: guestCart.id },
     });
+
+    // Return user's cart token — cookie must be updated!
+    return userCart.token;
   }
 }

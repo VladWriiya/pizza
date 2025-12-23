@@ -2,9 +2,11 @@
 
 import { cookies } from 'next/headers';
 import crypto from 'crypto';
+import { getServerSession } from 'next-auth';
 import { getOrCreateCart, updateCartTotals, cartItemsInclude } from '@/lib/cart-utils';
 import { CartWithRelations } from '@/lib/prisma-types';
 import { prisma } from '../../../../prisma/prisma-client';
+import { authOptions } from '@/lib/auth';
 
 interface AddToCartPayload {
   productItemId: number;
@@ -45,8 +47,36 @@ async function getCartTotalItems(cartId: number): Promise<number> {
   return result._sum.quantity ?? 0;
 }
 
+/**
+ * Get cart for current user/guest
+ * If user is logged in, always returns their cart and syncs cookie token
+ */
 export async function getCartAction(): Promise<CartWithRelations | null> {
+  const session = await getServerSession(authOptions);
   const token = cookies().get('cartToken')?.value;
+
+  console.log('[getCartAction] session userId:', session?.user?.id, '| cookie token:', token?.substring(0, 8));
+
+  // If user is logged in, prioritize their cart
+  if (session?.user?.id) {
+    const userId = Number(session.user.id);
+    const userCart = await prisma.cart.findFirst({
+      where: { userId },
+      include: cartItemsInclude,
+    }) as CartWithRelations | null;
+
+    console.log('[getCartAction] userCart found:', !!userCart, '| userCart token:', userCart?.token?.substring(0, 8));
+
+    if (userCart) {
+      // Sync cookie to user's cart token if different
+      if (token !== userCart.token) {
+        cookies().set('cartToken', userCart.token);
+      }
+      return userCart;
+    }
+  }
+
+  // Fallback to token-based cart (guest or no user cart)
   if (!token) {
     return null;
   }
@@ -58,7 +88,24 @@ export async function getCartAction(): Promise<CartWithRelations | null> {
 }
 
 export async function addCartItemAction(payload: AddToCartPayload): Promise<CartWithRelations> {
+  const session = await getServerSession(authOptions);
   let token = cookies().get('cartToken')?.value;
+
+  // If user is logged in, use their cart
+  if (session?.user?.id) {
+    const userId = Number(session.user.id);
+    const userCart = await prisma.cart.findFirst({
+      where: { userId },
+    });
+
+    if (userCart) {
+      token = userCart.token;
+      // Sync cookie
+      if (cookies().get('cartToken')?.value !== token) {
+        cookies().set('cartToken', token);
+      }
+    }
+  }
 
   if (!token) {
     token = crypto.randomUUID();
@@ -70,6 +117,14 @@ export async function addCartItemAction(payload: AddToCartPayload): Promise<Cart
     getOrCreateCart(token),
     getMaxCartItems(),
   ]);
+
+  // If user is logged in and cart has no userId, assign it
+  if (session?.user?.id && !cart.userId) {
+    await prisma.cart.update({
+      where: { id: cart.id },
+      data: { userId: Number(session.user.id) },
+    });
+  }
 
   const sortedIngredientIds = payload.ingredients?.sort((a: number, b: number) => a - b) || [];
   const sortedRemovedIds = payload.removedIngredients?.sort((a: number, b: number) => a - b) || [];
